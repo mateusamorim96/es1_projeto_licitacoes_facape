@@ -43,9 +43,9 @@ Geração da Ordem de Fornecimento após resultado do pregão e acompanhamento d
 
 > Preencha esta seção ao finalizar:
 
-- **Integrantes:**
-- **Data de entrega:**
-- **Branch/PR:**
+- **Integrantes:** Vitor Barros, Filipe Silva, Michel Batista, João Pedro Carvalho, Kelvin Keite
+- **Data de entrega:** 2026-06-03
+- **Branch/PR:** https://github.com/mateusamorim96/es1_projeto_licitacoes_facape
 
 ---
 
@@ -199,10 +199,19 @@ grupo-08-testes/
 ## ✏️ Seção de Entrega (preencher pelo grupo)
 
 **Integrantes:**
-- ...
+- Vitor Barros
+- Filipe Silva
+- Michel Batista
+- João Pedro Carvalho
+- Kelvin Keite
 
 **Decisões tomadas:**
-> ...
+> - Validação do saldo da ata SRP ocorre no momento da confirmação da emissão da OF (commit atômico), não no rascunho — garante consistência sem mecanismo de reserva prévia (ver ADR-01).
+> - Identificador da OF segue o formato `OF-{ANO}-{SEQUENCIAL}` (ex.: OF-2026-0042), compatível com a nomenclatura manual já usada na FACAPE (ver ADR-02).
+> - Valor exato de R$ 80.000 é tratado como exclusivo ME/EPP (RN-01 aplica operador `<=`).
+> - Testes documentados em Markdown com resultados obtidos preenchidos; sem implementação de código executável neste escopo acadêmico.
 
 **Limitações identificadas:**
-> ...
+> - Contrato de integração com G07 e G09 foi definido unilateralmente pelo grupo; não houve validação formal com os grupos G07 e G09 durante o desenvolvimento.
+> - Em ambiente de produção com alta concorrência, a validação atômica de saldo exigiria controle transacional (lock otimista ou pessimista) para evitar condição de corrida.
+> - Assinatura digital da OF foi modelada como metadado; integração real com ICP-Brasil ou Gov.br está fora do escopo acadêmico.
