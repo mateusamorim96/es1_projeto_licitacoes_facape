@@ -133,8 +133,21 @@ grupo-01-casos-de-uso/
 ├── README.md                        
 ├── testes.md                        
 ├── auditoria.md
-├──backlog/backlog.md
-├──      
+|
+├──backlog/
+|      └──backlog.md
+├──casos_de_uso\
+|      ├──caso_de_uso_UML.md
+|      └──caso_de_uso1.md
+|
+├──diagrama_de_sequencia\
+|      └──diagrama_de_sequencia.md
+|
+├──diagrama_de_classes\
+|      └──diagrama_UML_classe.md
+|
+├──bpmn\
+|      └──BPMN.md
 └──
        
 ```
