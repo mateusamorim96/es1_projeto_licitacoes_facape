@@ -11,6 +11,7 @@
 
 ![DS-01 Fluxo Principal](diagrama-sequencia-ds01-fluxo-principal.png)
 
+
 Representa o fluxo completo do módulo G08. G07 envia o resultado do pregão; o sistema valida os dados e cria um rascunho. O Chefe de Compras confirma a emissão após verificação de saldo e validade da ata SRP. A OF é gerada com número sequencial, enviada ao fornecedor em PDF, e a entrega é acompanhada até o registro final. Todos os eventos são enviados ao G09 para auditoria.
 
 ---

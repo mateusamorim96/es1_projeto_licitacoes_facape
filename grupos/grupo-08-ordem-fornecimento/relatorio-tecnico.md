@@ -63,6 +63,8 @@ AGUARDANDO_EMISSAO → EMITIDA → ENVIADA → RECEBIDA_PELO_FORNECEDOR → ENTR
 | RN-08 | Limite de 50% para adesão a ata alheia (carona) | Verificação com flag `AtaSRP.alheia` |
 | RN-10 | Mínimo de 3 fornecedores distintos na cotação | `Cotacao.validarMinimoFornecedores()` |
 
+**Nota sobre numeração:** As regras RN-05, RN-06, RN-07 e RN-09 pertencem a outros módulos do sistema (conforme `docs/contexto-do-sistema.md`) e estão fora do escopo do módulo G08. A numeração não é contínua por design — cada grupo recebe as RNs pertinentes ao seu módulo.
+
 ---
 
 ## 5. Decisões Arquiteturais

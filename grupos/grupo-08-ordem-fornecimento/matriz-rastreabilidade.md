@@ -17,13 +17,16 @@
 
 ## User Stories do Módulo
 
-| ID | Descrição |
-|----|-----------|
-| US-01 | Como chefe de licitações, quero que o sistema aplique automaticamente as regras de cota ME/EPP por item, para garantir conformidade com a Lei Complementar 123/2006 |
-| US-02 | Como chefe de compras, quero que o sistema detecte e impeça o fracionamento de despesa, para evitar irregularidades no processo licitatório |
-| US-03 | Como chefe de compras, quero emitir Ordens de Fornecimento com verificação automática de saldo e validade da ata SRP, para garantir que as OFs sejam legais e válidas |
-| US-04 | Como gestor de contratos, quero que o sistema controle o limite de adesão a atas alheias (carona), para não ultrapassar 50% do quantitativo original |
-| US-05 | Como chefe de licitações, quero que o sistema valide e calcule a cotação de preços com mínimo de 3 fornecedores, para garantir a competitividade do processo |
+> As user stories abaixo correspondem ao subconjunto do backlog diretamente rastreado pelos casos de teste.
+> A numeração original completa (US-01 a US-10) está em `backlog.md`.
+
+| ID (Backlog) | Descrição |
+|--------------|-----------|
+| US-04 | Como chefe de licitações, quero que o sistema aplique automaticamente as regras de cota ME/EPP por item, para garantir conformidade com a Lei Complementar 123/2006 |
+| US-05 | Como chefe de compras, quero que o sistema detecte e impeça o fracionamento de despesa, para evitar irregularidades no processo licitatório |
+| US-02 | Como chefe de compras, quero emitir Ordens de Fornecimento com verificação automática de saldo e validade da ata SRP, para garantir que as OFs sejam legais e válidas |
+| US-06 | Como gestor de contratos, quero que o sistema controle o limite de adesão a atas alheias (carona), para não ultrapassar 50% do quantitativo original |
+| US-07 | Como chefe de licitações, quero que o sistema valide e calcule a cotação de preços com mínimo de 3 fornecedores, para garantir a competitividade do processo |
 
 ---
 
@@ -42,7 +45,7 @@
 
 ## Matriz Casos de Teste x User Stories
 
-| Caso de Teste | US-01 | US-02 | US-03 | US-04 | US-05 |
+| Caso de Teste | US-04 | US-05 | US-02 | US-06 | US-07 |
 |--------------|-------|-------|-------|-------|-------|
 | CT-01 — Item abaixo de R$ 80k (exclusivo ME/EPP) | X | — | — | — | — |
 | CT-02 — Item acima de R$ 80k (cota 25%) | X | — | — | — | — |
@@ -93,8 +96,8 @@
 
 | User Story | Casos de Teste que cobrem |
 |-----------|--------------------------|
-| US-01 | CT-01, CT-02, CT-03, CT-04 |
-| US-02 | CT-05, CT-06 |
-| US-03 | CT-07, CT-08, CT-09 |
-| US-04 | CT-10, CT-11 |
-| US-05 | CT-12, CT-13 |
+| US-04 | CT-01, CT-02, CT-03, CT-04 |
+| US-05 | CT-05, CT-06 |
+| US-02 | CT-07, CT-08, CT-09 |
+| US-06 | CT-10, CT-11 |
+| US-07 | CT-12, CT-13 |

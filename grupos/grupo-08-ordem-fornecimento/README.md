@@ -171,13 +171,32 @@ Com base nos gargalos identificados no contexto do sistema, priorize:
 
 ---
 
-## 📁 Estrutura esperada da pasta
+## 📁 Estrutura da pasta
 
 ```
-grupo-08-testes/
+grupo-08-ordem-fornecimento/
 ├── README.md
+├── relatorio-tecnico.md
+├── backlog.md
+├── casos-de-uso.md
 ├── plano-de-testes.md
 ├── matriz-rastreabilidade.md
+├── adr/
+│   ├── ADR-01-validacao-saldo-ata.md
+│   └── ADR-02-formato-identificador-of.md
+├── diagramas/
+│   ├── sequencia/
+│   │   ├── diagrama-sequencia.md
+│   │   ├── diagrama-sequencia-ds01-fluxo-principal.png
+│   │   ├── diagrama-sequencia-ds02-cota-mepp.png
+│   │   ├── diagrama-sequencia-ds03-adesao-carona.png
+│   │   └── diagrama-sequencia-ds04-cotacao-fornecedores.png
+│   ├── uml-classes/
+│   │   ├── diagrama-uml-classes.md
+│   │   └── diagrama-uml-classes.png
+│   └── bpmn/
+│       ├── bpmn.md
+│       └── bpmn-ciclo-of.png
 └── casos-de-teste/
     ├── CT-01-cota-mepp-abaixo-80k.md
     ├── CT-02-cota-mepp-acima-80k.md
