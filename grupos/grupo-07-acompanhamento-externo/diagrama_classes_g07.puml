@@ -1,0 +1,99 @@
+@startuml diagrama_classes_g07
+title Diagrama UML de Classes — Módulo G07
+
+skinparam classBackgroundColor #E6F1FB
+skinparam classBorderColor #185FA5
+skinparam classHeaderBackgroundColor #E6F1FB
+skinparam classFontColor #0C447C
+skinparam attributeFontColor #185FA5
+skinparam operationFontColor #185FA5
+
+class ProcessoExterno {
+  - id : UUID
+  - numeroProcesso : String
+  - modalidade : Enum
+  - objetoDescricao : String
+  - dataAbertura : LocalDate
+  --
+  + consultarStatus()
+  + registrarResultado()
+}
+
+skinparam class {
+  BackgroundColor<<StatusPregao>> #EEEDFE
+  BorderColor<<StatusPregao>> #534AB7
+  FontColor<<StatusPregao>> #3C3489
+  AttributeFontColor<<StatusPregao>> #534AB7
+  OperationFontColor<<StatusPregao>> #534AB7
+}
+
+class StatusPregao <<StatusPregao>> {
+  - id : UUID
+  - status : Enum
+  - dataHora : DateTime
+  - origem : Enum
+  - observacao : String
+  --
+  + validarTransicao()
+}
+
+skinparam class {
+  BackgroundColor<<EmpresaVencedora>> #E1F5EE
+  BorderColor<<EmpresaVencedora>> #0F6E56
+  FontColor<<EmpresaVencedora>> #085041
+  AttributeFontColor<<EmpresaVencedora>> #0F6E56
+  OperationFontColor<<EmpresaVencedora>> #0F6E56
+}
+
+class EmpresaVencedora <<EmpresaVencedora>> {
+  - id : UUID
+  - razaoSocial : String
+  - cnpj : String
+  - valorTotal : BigDecimal
+  - dataAdjudicacao : Date
+  --
+  + validarCNPJ()
+  + calcularTotal()
+}
+
+skinparam class {
+  BackgroundColor<<ResultadoItem>> #FAEEDA
+  BorderColor<<ResultadoItem>> #854F0B
+  FontColor<<ResultadoItem>> #633806
+  AttributeFontColor<<ResultadoItem>> #854F0B
+  OperationFontColor<<ResultadoItem>> #854F0B
+}
+
+class ResultadoItem <<ResultadoItem>> {
+  - id : UUID
+  - descricaoItem : String
+  - quantidade : Integer
+  - valorUnitario : BigDecimal
+  --
+  + calcularSubtotal()
+}
+
+skinparam class {
+  BackgroundColor<<LogAuditoria>> #F1EFE8
+  BorderColor<<LogAuditoria>> #5F5E5A
+  FontColor<<LogAuditoria>> #444441
+  AttributeFontColor<<LogAuditoria>> #5F5E5A
+  OperationFontColor<<LogAuditoria>> #5F5E5A
+}
+
+class LogAuditoria <<LogAuditoria>> {
+  - id : UUID
+  - dataHoraConsulta : DateTime
+  - statusRetornado : String
+  - sucesso : Boolean
+  --
+  + registrar()
+}
+
+' Relacionamentos
+ProcessoExterno "1" --> "0..*" StatusPregao
+ProcessoExterno "1" --> "0..1" EmpresaVencedora
+EmpresaVencedora "1" --> "0..*" ResultadoItem
+ProcessoExterno "1" .> "0..*" LogAuditoria : gera
+
+@enduml
