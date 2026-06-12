@@ -144,7 +144,7 @@ grupo-01-casos-de-uso/
 - Lucas Freitas Menezes | 26280
 - Jose Diego de Sá Pires | 26391
 - João Vitor Moreira Santos | 26360
-- Natan Malta | 
+- Natan Malta | 25840
 - Arthur Gonçalves Malheiro Ferreira | 25983
 
 **Decisões tomadas:**
