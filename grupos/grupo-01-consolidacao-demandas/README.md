@@ -130,10 +130,13 @@ UC03 --> PNCP
 
 ```
 grupo-01-casos-de-uso/
-├── README.md                        ← este arquivo (preencha a seção abaixo)
-├── atores.md                        ← descrição dos atores
-├── diagrama-casos-de-uso.puml       ← fonte PlantUML (ou .drawio)
-└── diagrama-casos-de-uso.png        ← exportação em imagem
+├── README.md                        
+├── testes.md                        
+├── auditoria.md
+├──backlog/backlog.md
+├──      
+└──
+       
 ```
 
 ---
