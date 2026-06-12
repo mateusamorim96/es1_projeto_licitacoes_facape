@@ -154,7 +154,7 @@ grupo-01-casos-de-uso/
 
 >Na modelagem de Casos de Uso, focamos em isolar a responsabilidade do módulo DFD. Extraímos a "Validação de Demanda" como um <<include>> obrigatório e tratamos sistemas externos (PNCP e Banco de Preços) como atores bem definidos.
 
-No BPMN, incluímos uma swimlane (raia) dedicada exclusivamente às ações invisíveis do sistema (Auditoria), garantindo que as regras de negócio de rastreabilidade estivessem mapeadas visualmente no fluxo operacional.
+>No BPMN, incluímos uma swimlane (raia) dedicada exclusivamente às ações invisíveis do sistema (Auditoria), garantindo que as regras de negócio de rastreabilidade estivessem mapeadas visualmente no fluxo operacional.
 **Limitações identificadas:**
 >A principal limitação foi definir como o sistema lidará com o fluxo de aprovação caso uma secretaria conteste um corte de quantidade feito pelo Setor de Compras na consolidação. Além disso, a interface exata de comunicação de dados com o Módulo G02 (ETP) foi mapeada conceitualmente, mas o formato técnico dos dados trafegados (JSON, XML) ainda precisará de definição futura.
 
