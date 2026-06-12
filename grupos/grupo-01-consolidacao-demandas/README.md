@@ -130,10 +130,26 @@ UC03 --> PNCP
 
 ```
 grupo-01-casos-de-uso/
-├── README.md                        ← este arquivo (preencha a seção abaixo)
-├── atores.md                        ← descrição dos atores
-├── diagrama-casos-de-uso.puml       ← fonte PlantUML (ou .drawio)
-└── diagrama-casos-de-uso.png        ← exportação em imagem
+├── README.md                        
+├── testes.md                        
+├── auditoria.md
+|
+├──backlog/
+|      └──backlog.md
+├──casos_de_uso\
+|      ├──caso_de_uso_UML.md
+|      └──caso_de_uso1.md
+|
+├──diagrama_de_sequencia\
+|      └──diagrama_de_sequencia.md
+|
+├──diagrama_de_classes\
+|      └──diagrama_UML_classe.md
+|
+├──bpmn\
+|      └──BPMN.md
+└──
+       
 ```
 
 ---
@@ -141,13 +157,25 @@ grupo-01-casos-de-uso/
 ## ✏️ Seção de Entrega (preencher pelo grupo)
 
 **Integrantes:**
-- ...
+- Lucas Freitas Menezes | 26280
+- Jose Diego de Sá Pires | 26391
+- João Vitor Moreira Santos | 26360
+- Natan Malta | 25840
+- Arthur Gonçalves Malheiro Ferreira | 25983
 
 **Decisões tomadas:**
-> (explique aqui as escolhas de modelagem: o que foi difícil de decidir, por que agruparam/separaram determinados UCs, como trataram os sistemas externos, etc.)
+>A primeira decisão relevante foi a criação de um Módulo de Auditoria Integrado (Audit Trail) (ADR-002). O sistema gravará logs em uma tabela append-only cobrindo desde a criação do rascunho da demanda até o bloqueio de prazos e a geração do DFD. A rastreabilidade captura não apenas as ações, mas o estado exato dos dados (campos JSON de dados_anteriores e dados_novos).
 
+>A segunda decisão tratou da Detecção de Duplicatas (ADR-001). Optamos por não automatizar a consolidação em 100% para evitar falhas em licitações críticas. O sistema usa um algoritmo de similaridade textual para sugerir a fusão de itens semelhantes, mas exige a homologação manual do Analista de Compras.
+
+>Na modelagem de Casos de Uso, focamos em isolar a responsabilidade do módulo DFD. Extraímos a "Validação de Demanda" como um <<include>> obrigatório e tratamos sistemas externos (PNCP e Banco de Preços) como atores bem definidos.
+
+>No BPMN, incluímos uma swimlane (raia) dedicada exclusivamente às ações invisíveis do sistema (Auditoria), garantindo que as regras de negócio de rastreabilidade estivessem mapeadas visualmente no fluxo operacional.
 **Limitações identificadas:**
-> (o que ficou em aberto, dúvidas sobre o domínio)
+>A principal limitação foi definir como o sistema lidará com o fluxo de aprovação caso uma secretaria conteste um corte de quantidade feito pelo Setor de Compras na consolidação. Além disso, a interface exata de comunicação de dados com o Módulo G02 (ETP) foi mapeada conceitualmente, mas o formato técnico dos dados trafegados (JSON, XML) ainda precisará de definição futura.
+
 
 **Rastreabilidade:**
-> (para cada UC principal, cite a regra de negócio, requisito ou artefato de origem)
+ >Baseado no contexto do sistema
+ >Baseado nos requisitos de controle governamental (Auditoria rigorosa do fluxo).
+ >Baseado na integração com outros grupos: Recebe demandas das Secretarias como entrada; entrega o DFD consolidado ao G02 (ETP) como saída.
