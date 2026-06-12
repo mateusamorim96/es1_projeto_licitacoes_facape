@@ -157,7 +157,7 @@ Na modelagem de Casos de Uso, focamos em isolar a responsabilidade do módulo DF
 No BPMN, incluímos uma swimlane (raia) dedicada exclusivamente às ações invisíveis do sistema (Auditoria), garantindo que as regras de negócio de rastreabilidade estivessem mapeadas visualmente no fluxo operacional.
 **Limitações identificadas:**
 A principal limitação foi definir como o sistema lidará com o fluxo de aprovação caso uma secretaria conteste um corte de quantidade feito pelo Setor de Compras na consolidação. Além disso, a interface exata de comunicação de dados com o Módulo G02 (ETP) foi mapeada conceitualmente, mas o formato técnico dos dados trafegados (JSON, XML) ainda precisará de definição futura.
-> (o que ficou em aberto, dúvidas sobre o domínio)
+
 
 **Rastreabilidade:**
  Baseado no contexto do sistema
