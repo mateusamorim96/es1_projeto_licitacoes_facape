@@ -43,9 +43,9 @@ Geração da Ordem de Fornecimento após resultado do pregão e acompanhamento d
 
 > Preencha esta seção ao finalizar:
 
-- **Integrantes:**
-- **Data de entrega:**
-- **Branch/PR:**
+- **Integrantes:** Vitor Barros Batista (26341), Filipe Silva Cavalcanti (26211), Michel Batista (26075), João Pedro Ribeiro (26640), Kelvin Keite
+- **Data de entrega:** 2026-06-03
+- **Branch/PR:** https://github.com/mateusamorim96/es1_projeto_licitacoes_facape
 
 ---
 
@@ -171,13 +171,32 @@ Com base nos gargalos identificados no contexto do sistema, priorize:
 
 ---
 
-## 📁 Estrutura esperada da pasta
+## 📁 Estrutura da pasta
 
 ```
-grupo-08-testes/
+grupo-08-ordem-fornecimento/
 ├── README.md
+├── relatorio-tecnico.md
+├── backlog.md
+├── casos-de-uso.md
 ├── plano-de-testes.md
 ├── matriz-rastreabilidade.md
+├── adr/
+│   ├── ADR-01-validacao-saldo-ata.md
+│   └── ADR-02-formato-identificador-of.md
+├── diagramas/
+│   ├── sequencia/
+│   │   ├── diagrama-sequencia.md
+│   │   ├── diagrama-sequencia-ds01-fluxo-principal.png
+│   │   ├── diagrama-sequencia-ds02-cota-mepp.png
+│   │   ├── diagrama-sequencia-ds03-adesao-carona.png
+│   │   └── diagrama-sequencia-ds04-cotacao-fornecedores.png
+│   ├── uml-classes/
+│   │   ├── diagrama-uml-classes.md
+│   │   └── diagrama-uml-classes.png
+│   └── bpmn/
+│       ├── bpmn.md
+│       └── bpmn-ciclo-of.png
 └── casos-de-teste/
     ├── CT-01-cota-mepp-abaixo-80k.md
     ├── CT-02-cota-mepp-acima-80k.md
@@ -199,10 +218,19 @@ grupo-08-testes/
 ## ✏️ Seção de Entrega (preencher pelo grupo)
 
 **Integrantes:**
-- ...
+- Vitor Barros
+- Filipe Silva
+- Michel Batista
+- João Pedro Ribeiro (26640)
+- Kelvin Keite
 
 **Decisões tomadas:**
-> ...
+> - Validação do saldo da ata SRP ocorre no momento da confirmação da emissão da OF (commit atômico), não no rascunho — garante consistência sem mecanismo de reserva prévia (ver ADR-01).
+> - Identificador da OF segue o formato `OF-{ANO}-{SEQUENCIAL}` (ex.: OF-2026-0042), compatível com a nomenclatura manual já usada na FACAPE (ver ADR-02).
+> - Valor exato de R$ 80.000 é tratado como exclusivo ME/EPP (RN-01 aplica operador `<=`).
+> - Testes documentados em Markdown com resultados obtidos preenchidos; sem implementação de código executável neste escopo acadêmico.
 
 **Limitações identificadas:**
-> ...
+> - Contrato de integração com G07 e G09 foi definido unilateralmente pelo grupo; não houve validação formal com os grupos G07 e G09 durante o desenvolvimento.
+> - Em ambiente de produção com alta concorrência, a validação atômica de saldo exigiria controle transacional (lock otimista ou pessimista) para evitar condição de corrida.
+> - Assinatura digital da OF foi modelada como metadado; integração real com ICP-Brasil ou Gov.br está fora do escopo acadêmico.
