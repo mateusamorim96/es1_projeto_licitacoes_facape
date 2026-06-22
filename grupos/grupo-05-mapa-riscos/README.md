@@ -44,8 +44,13 @@ Análise de riscos do produto (não do fornecedor): preço, especificação, amb
 > Preencha esta seção ao finalizar:
 
 - **Integrantes:**
-- **Data de entrega:**
-- **Branch/PR:**
+  - José Marcelo Rodrigues Cavalcanti
+  - Gabriel Bezerra Gonçalves
+  - João Pedro Jacó Leite
+  - Marcio Lucas Rosa Goncalves
+  - Luis Gustavo Alencar Moura
+- **Data de entrega:** Junho de 2026
+- **Branch/PR:** grupo-05/mapa-riscos
 
 ---
 
@@ -150,10 +155,17 @@ grupo-05-modelagem-processos/
 ## ✏️ Seção de Entrega (preencher pelo grupo)
 
 **Integrantes:**
-- ...
+- José Marcelo Rodrigues Cavalcanti
+- Gabriel Bezerra Gonçalves
+- João Pedro Jacó Leite
+- Marcio Lucas Rosa Goncalves
+- Luis Gustavo Alencar Moura
 
 **Decisões tomadas:**
-> ...
+> **ADR-01**: Adotamos a Matriz 5×5 (padrão TCU) com `score = probabilidade × impacto`. Faixas: 1–4 Baixo · 5–9 Médio · 10–14 Alto · 15–25 Crítico. Score ≥ 15 exige validação do Jurídico Interno antes da aprovação (RN-MR-03).  
+> **ADR-02**: Usamos os atores reais da FACAPE (Chefe de Licitações, Chefe de Compras, Jurídico Interno) em vez dos genéricos do enunciado, por coerência com o `docs/contexto-do-sistema.md`.
+> **ADR-03**: Score ≥ 15 bloqueia a aprovação do mapa até o Jurídico Interno registrar parecer favorável, conforme exigência da Lei 14.133/2021.  
+> **ADR-04**: Mapa aprovado é imutável — qualquer alteração gera nova versão arquivada (RN-MR-07), garantindo rastreabilidade exigida pela Lei 14.133/2021.  
 
 **Limitações identificadas:**
-> ...
+> A principal dificuldade foi entender o processo real de licitações da FACAPE e como o módulo G05 se encaixa no fluxo completo entre os 9 grupos. Compreender as regras de negócio da Lei 14.133/2021 e traduzi-las em artefatos de engenharia de software (casos de uso, BPMN, diagrama de sequência) exigiu várias revisões. O aprendizado das ferramentas de modelagem — PlantUML para os diagramas UML e de sequência, e bpmn.io para os BPMNs — também representou uma curva de adaptação ao longo do projeto.

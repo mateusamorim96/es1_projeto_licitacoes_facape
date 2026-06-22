@@ -1,0 +1,562 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="BPMN-03-gestao-ata-srp" targetNamespace="http://g05.facape.br/gestao-ata-srp" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.2">
+  <collaboration id="Collab_AtaSRP">
+    <participant id="Pool_AtaSRP" name="FACAPE — Sub-processo: Gestão de Ata SRP e Emissão de Ordem de Fornecimento" processRef="Proc_AtaSRP" />
+  </collaboration>
+  <process id="Proc_AtaSRP" isExecutable="false">
+    <laneSet id="LS_AtaSRP">
+      <lane id="Lane_Contabilidade" name="Contabilidade">
+        <flowNodeRef>End_ProcessoConcluido</flowNodeRef>
+        <flowNodeRef>End_Suspenso</flowNodeRef>
+        <flowNodeRef>GW_DotacaoSuficiente</flowNodeRef>
+        <flowNodeRef>Task_AlertarSemDotacao</flowNodeRef>
+        <flowNodeRef>Task_ReservarDotacao</flowNodeRef>
+        <flowNodeRef>Task_EmitirEmpenho</flowNodeRef>
+        <flowNodeRef>Task_EncaminharPagamento</flowNodeRef>
+        <flowNodeRef>Task_VerificarDotacao</flowNodeRef>
+      </lane>
+      <lane id="Lane_Compras" name="Setor de Compras">
+        <flowNodeRef>Start_NecessidadeOF</flowNodeRef>
+        <flowNodeRef>Timer_AtaVencimento</flowNodeRef>
+        <flowNodeRef>Task_NotificarVencimento</flowNodeRef>
+        <flowNodeRef>Task_ConsultarAtasVigentes</flowNodeRef>
+        <flowNodeRef>GW_AtaDisponivel</flowNodeRef>
+        <flowNodeRef>Task_IniciarNovoProcesso</flowNodeRef>
+        <flowNodeRef>Task_VerificarSaldo</flowNodeRef>
+        <flowNodeRef>GW_PrecoCompetitivo</flowNodeRef>
+        <flowNodeRef>End_NovoProcesso</flowNodeRef>
+        <flowNodeRef>Task_SelecionarAta</flowNodeRef>
+        <flowNodeRef>Task_VerificarCompetitividade</flowNodeRef>
+        <flowNodeRef>GW_SaldoDisponivel</flowNodeRef>
+        <flowNodeRef>End_SaldoEsgotado</flowNodeRef>
+        <flowNodeRef>Task_EnviarOFAoFornecedor</flowNodeRef>
+        <flowNodeRef>Task_AcompanharEntrega</flowNodeRef>
+        <flowNodeRef>Task_PreencherOF</flowNodeRef>
+        <flowNodeRef>Task_ValidarOF</flowNodeRef>
+        <flowNodeRef>GW_OFValida</flowNodeRef>
+        <flowNodeRef>Task_CorrigirOF</flowNodeRef>
+        <flowNodeRef>Task_RegistrarEntregaParcial</flowNodeRef>
+        <flowNodeRef>Task_ReceberNotaFiscal</flowNodeRef>
+        <flowNodeRef>GW_EntregaConforme</flowNodeRef>
+        <flowNodeRef>Task_AcionarMulta</flowNodeRef>
+        <flowNodeRef>Timer_EntregaExpirada</flowNodeRef>
+      </lane>
+    </laneSet>
+    <startEvent id="Start_NecessidadeOF" name="Necessidade de emissao de Ordem de Fornecimento">
+      <outgoing>F01</outgoing>
+    </startEvent>
+    <intermediateCatchEvent id="Timer_AtaVencimento" name="Timer: Ata proxima do vencimento (30 dias)">
+      <outgoing>F_TimerVenc</outgoing>
+      <timerEventDefinition>
+        <timeDuration>P30D</timeDuration>
+      </timerEventDefinition>
+    </intermediateCatchEvent>
+    <serviceTask id="Task_NotificarVencimento" name="Notificar Setor de Compras sobre vencimento da ata">
+      <incoming>F_TimerVenc</incoming>
+      <outgoing>F_NotifVenc</outgoing>
+    </serviceTask>
+    <serviceTask id="Task_ConsultarAtasVigentes" name="Consultar atas SRP vigentes para o item">
+      <incoming>F01</incoming>
+      <incoming>F_NotifVenc</incoming>
+      <outgoing>F02</outgoing>
+    </serviceTask>
+    <exclusiveGateway id="GW_AtaDisponivel" name="Ha ata SRP vigente para o item?">
+      <incoming>F02</incoming>
+      <outgoing>F_AtaSim</outgoing>
+      <outgoing>F_AtaNao</outgoing>
+    </exclusiveGateway>
+    <userTask id="Task_IniciarNovoProcesso" name="Iniciar novo processo licitatorio para o item">
+      <incoming>F_AtaNao</incoming>
+      <incoming>F_SaldoNao</incoming>
+      <incoming>F_PrecoNao</incoming>
+      <outgoing>F_FimNovo1</outgoing>
+    </userTask>
+    <userTask id="Task_VerificarSaldo" name="Verificar saldo quantitativo disponivel na ata (limite 50% — RN-08)">
+      <incoming>F03</incoming>
+      <outgoing>F04</outgoing>
+    </userTask>
+    <exclusiveGateway id="GW_PrecoCompetitivo" name="Preco da ata e competitivo?">
+      <incoming>F05</incoming>
+      <outgoing>F_PrecoSim</outgoing>
+      <outgoing>F_PrecoNao</outgoing>
+    </exclusiveGateway>
+    <endEvent id="End_NovoProcesso" name="Novo processo licitatorio iniciado">
+      <incoming>F_FimNovo1</incoming>
+      <incoming>F_FimNovo2</incoming>
+    </endEvent>
+    <userTask id="Task_SelecionarAta" name="Selecionar ata SRP mais adequada (objeto, preco, fornecedor)">
+      <incoming>F_AtaSim</incoming>
+      <outgoing>F03</outgoing>
+    </userTask>
+    <userTask id="Task_VerificarCompetitividade" name="Verificar se preco da ata e competitivo vs. cotacao atual">
+      <incoming>F_SaldoSim</incoming>
+      <outgoing>F05</outgoing>
+    </userTask>
+    <exclusiveGateway id="GW_SaldoDisponivel" name="Saldo disponivel dentro do limite de 50%?">
+      <incoming>F04</incoming>
+      <outgoing>F_SaldoSim</outgoing>
+      <outgoing>F_SaldoNao</outgoing>
+    </exclusiveGateway>
+    <endEvent id="End_SaldoEsgotado" name="Saldo da ata esgotado — encerramento">
+      <incoming>F_FimSaldo</incoming>
+    </endEvent>
+    <serviceTask id="Task_EnviarOFAoFornecedor" name="Enviar OF assinada digitalmente ao fornecedor">
+      <incoming>F_OFSim</incoming>
+      <outgoing>F08</outgoing>
+    </serviceTask>
+    <userTask id="Task_AcompanharEntrega" name="Acompanhar entrega: verificar prazo, quantidade e qualidade">
+      <incoming>F08</incoming>
+      <incoming>F_Multa</incoming>
+      <outgoing>F09</outgoing>
+    </userTask>
+    <userTask id="Task_PreencherOF" name="Preencher Ordem de Fornecimento (itens, quantidade, local, prazo)">
+      <incoming>F_PrecoSim</incoming>
+      <outgoing>F06</outgoing>
+    </userTask>
+    <userTask id="Task_ValidarOF" name="Validar OF: conferir dados, valores e dotacao orcamentaria">
+      <incoming>F06</incoming>
+      <incoming>F_CorrigidoOF</incoming>
+      <outgoing>F07</outgoing>
+    </userTask>
+    <exclusiveGateway id="GW_OFValida" name="OF sem erros?">
+      <incoming>F07</incoming>
+      <outgoing>F_OFSim</outgoing>
+      <outgoing>F_OFNao</outgoing>
+    </exclusiveGateway>
+    <userTask id="Task_CorrigirOF" name="Corrigir inconsistencias na OF">
+      <incoming>F_OFNao</incoming>
+      <outgoing>F_CorrigidoOF</outgoing>
+    </userTask>
+    <userTask id="Task_RegistrarEntregaParcial" name="Registrar entrega parcial e notificar fornecedor do saldo pendente">
+      <incoming>F_EntregaParcial</incoming>
+      <outgoing>F_VoltaAcomp</outgoing>
+    </userTask>
+    <userTask id="Task_ReceberNotaFiscal" name="Receber e conferir Nota Fiscal Eletronica">
+      <incoming>F_EntregaSim</incoming>
+      <outgoing>F10</outgoing>
+    </userTask>
+    <exclusiveGateway id="GW_EntregaConforme" name="Entrega conforme?">
+      <incoming>F09</incoming>
+      <outgoing>F_EntregaSim</outgoing>
+      <outgoing>F_EntregaParcial</outgoing>
+    </exclusiveGateway>
+    <serviceTask id="Task_AcionarMulta" name="Acionar clausula de multa por atraso na entrega">
+      <incoming>F_TimerEnt</incoming>
+      <outgoing>F_Multa</outgoing>
+    </serviceTask>
+    <intermediateCatchEvent id="Timer_EntregaExpirada" name="Timer: Prazo de entrega expirado">
+      <outgoing>F_TimerEnt</outgoing>
+      <timerEventDefinition>
+        <timeDuration>P30D</timeDuration>
+      </timerEventDefinition>
+    </intermediateCatchEvent>
+    <endEvent id="End_ProcessoConcluido" name="OF concluida — empenho e pagamento encaminhados">
+      <incoming>F_FimOk</incoming>
+    </endEvent>
+    <endEvent id="End_Suspenso" name="Processo suspenso — sem dotacao orcamentaria">
+      <incoming>F_FimSuspenso</incoming>
+    </endEvent>
+    <exclusiveGateway id="GW_DotacaoSuficiente" name="Dotacao orcamentaria suficiente?">
+      <incoming>F11</incoming>
+      <outgoing>F_DotSim</outgoing>
+      <outgoing>F_DotNao</outgoing>
+    </exclusiveGateway>
+    <userTask id="Task_AlertarSemDotacao" name="Alertar gestores: sem dotacao — suspender processo">
+      <incoming>F_DotNao</incoming>
+      <outgoing>F_FimSuspenso</outgoing>
+    </userTask>
+    <userTask id="Task_ReservarDotacao" name="Reservar dotacao orcamentaria (pre-empenho)">
+      <incoming>F_DotSim</incoming>
+      <outgoing>F12</outgoing>
+    </userTask>
+    <userTask id="Task_EmitirEmpenho" name="Emitir nota de empenho vinculada a OF">
+      <incoming>F12</incoming>
+      <outgoing>F13</outgoing>
+    </userTask>
+    <userTask id="Task_EncaminharPagamento" name="Encaminhar NF e empenho para pagamento ao fornecedor">
+      <incoming>F13</incoming>
+      <outgoing>F_FimOk</outgoing>
+    </userTask>
+    <userTask id="Task_VerificarDotacao" name="Verificar disponibilidade de dotacao orcamentaria">
+      <incoming>F10</incoming>
+      <outgoing>F11</outgoing>
+    </userTask>
+    <sequenceFlow id="F01" sourceRef="Start_NecessidadeOF" targetRef="Task_ConsultarAtasVigentes" />
+    <sequenceFlow id="F_TimerVenc" sourceRef="Timer_AtaVencimento" targetRef="Task_NotificarVencimento" />
+    <sequenceFlow id="F_NotifVenc" sourceRef="Task_NotificarVencimento" targetRef="Task_ConsultarAtasVigentes" />
+    <sequenceFlow id="F02" sourceRef="Task_ConsultarAtasVigentes" targetRef="GW_AtaDisponivel" />
+    <sequenceFlow id="F_AtaSim" name="Sim" sourceRef="GW_AtaDisponivel" targetRef="Task_SelecionarAta" />
+    <sequenceFlow id="F_AtaNao" name="Nao — sem ata" sourceRef="GW_AtaDisponivel" targetRef="Task_IniciarNovoProcesso" />
+    <sequenceFlow id="F_SaldoNao" name="Nao — acima de 50%" sourceRef="GW_SaldoDisponivel" targetRef="Task_IniciarNovoProcesso" />
+    <sequenceFlow id="F_PrecoNao" name="Nao — novo processo" sourceRef="GW_PrecoCompetitivo" targetRef="Task_IniciarNovoProcesso" />
+    <sequenceFlow id="F_FimNovo1" sourceRef="Task_IniciarNovoProcesso" targetRef="End_NovoProcesso" />
+    <sequenceFlow id="F03" sourceRef="Task_SelecionarAta" targetRef="Task_VerificarSaldo" />
+    <sequenceFlow id="F04" sourceRef="Task_VerificarSaldo" targetRef="GW_SaldoDisponivel" />
+    <sequenceFlow id="F05" sourceRef="Task_VerificarCompetitividade" targetRef="GW_PrecoCompetitivo" />
+    <sequenceFlow id="F_PrecoSim" name="Sim — usar ata" sourceRef="GW_PrecoCompetitivo" targetRef="Task_PreencherOF" />
+    <sequenceFlow id="F_FimNovo2" sourceRef="GW_PrecoCompetitivo" targetRef="End_NovoProcesso" />
+    <sequenceFlow id="F_SaldoSim" name="Sim — dentro do limite" sourceRef="GW_SaldoDisponivel" targetRef="Task_VerificarCompetitividade" />
+    <sequenceFlow id="F_FimSaldo" sourceRef="GW_SaldoDisponivel" targetRef="End_SaldoEsgotado" />
+    <sequenceFlow id="F_OFSim" name="Sim" sourceRef="GW_OFValida" targetRef="Task_EnviarOFAoFornecedor" />
+    <sequenceFlow id="F08" sourceRef="Task_EnviarOFAoFornecedor" targetRef="Task_AcompanharEntrega" />
+    <sequenceFlow id="F_Multa" sourceRef="Task_AcionarMulta" targetRef="Task_AcompanharEntrega" />
+    <sequenceFlow id="F_VoltaAcomp" sourceRef="Task_RegistrarEntregaParcial" targetRef="Task_AcompanharEntrega" />
+    <sequenceFlow id="F09" sourceRef="Task_AcompanharEntrega" targetRef="GW_EntregaConforme" />
+    <sequenceFlow id="F06" sourceRef="Task_PreencherOF" targetRef="Task_ValidarOF" />
+    <sequenceFlow id="F_CorrigidoOF" sourceRef="Task_CorrigirOF" targetRef="Task_ValidarOF" />
+    <sequenceFlow id="F07" sourceRef="Task_ValidarOF" targetRef="GW_OFValida" />
+    <sequenceFlow id="F_OFNao" name="Nao — corrigir" sourceRef="GW_OFValida" targetRef="Task_CorrigirOF" />
+    <sequenceFlow id="F_EntregaParcial" name="Parcial — pendencia" sourceRef="GW_EntregaConforme" targetRef="Task_RegistrarEntregaParcial" />
+    <sequenceFlow id="F_EntregaSim" name="Conforme" sourceRef="GW_EntregaConforme" targetRef="Task_ReceberNotaFiscal" />
+    <sequenceFlow id="F10" sourceRef="Task_ReceberNotaFiscal" targetRef="Task_VerificarDotacao" />
+    <sequenceFlow id="F_TimerEnt" sourceRef="Timer_EntregaExpirada" targetRef="Task_AcionarMulta" />
+    <sequenceFlow id="F_FimOk" sourceRef="Task_EncaminharPagamento" targetRef="End_ProcessoConcluido" />
+    <sequenceFlow id="F_FimSuspenso" sourceRef="Task_AlertarSemDotacao" targetRef="End_Suspenso" />
+    <sequenceFlow id="F11" sourceRef="Task_VerificarDotacao" targetRef="GW_DotacaoSuficiente" />
+    <sequenceFlow id="F_DotSim" name="Sim" sourceRef="GW_DotacaoSuficiente" targetRef="Task_ReservarDotacao" />
+    <sequenceFlow id="F_DotNao" name="Nao" sourceRef="GW_DotacaoSuficiente" targetRef="Task_AlertarSemDotacao" />
+    <sequenceFlow id="F12" sourceRef="Task_ReservarDotacao" targetRef="Task_EmitirEmpenho" />
+    <sequenceFlow id="F13" sourceRef="Task_EmitirEmpenho" targetRef="Task_EncaminharPagamento" />
+  </process>
+  <bpmndi:BPMNDiagram id="Diag_03">
+    <bpmndi:BPMNPlane id="Plane_03" bpmnElement="Collab_AtaSRP">
+      <bpmndi:BPMNShape id="Pool_Shape" bpmnElement="Pool_AtaSRP" isHorizontal="true">
+        <dc:Bounds x="160" y="60" width="2350" height="860" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Cont_Shape" bpmnElement="Lane_Contabilidade" isHorizontal="true">
+        <dc:Bounds x="190" y="640" width="2320" height="280" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Comp_Shape" bpmnElement="Lane_Compras" isHorizontal="true">
+        <dc:Bounds x="190" y="60" width="2320" height="580" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Start" bpmnElement="Start_NecessidadeOF">
+        <dc:Bounds x="242" y="282" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="222" y="325" width="79" height="53" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_TimerVenc" bpmnElement="Timer_AtaVencimento">
+        <dc:Bounds x="242" y="152" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="224" y="195" width="75" height="53" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_NotifVenc" bpmnElement="Task_NotificarVencimento">
+        <dc:Bounds x="320" y="130" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_ConsAta" bpmnElement="Task_ConsultarAtasVigentes">
+        <dc:Bounds x="320" y="260" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GWAta" bpmnElement="GW_AtaDisponivel" isMarkerVisible="true">
+        <dc:Bounds x="510" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="501" y="230" width="69" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_InicNovo" bpmnElement="Task_IniciarNovoProcesso">
+        <dc:Bounds x="610" y="480" width="140" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_VerSaldo" bpmnElement="Task_VerificarSaldo">
+        <dc:Bounds x="800" y="260" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GWPreco" bpmnElement="GW_PrecoCompetitivo" isMarkerVisible="true">
+        <dc:Bounds x="1280" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1269" y="236.5" width="72" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_EndNovo" bpmnElement="End_NovoProcesso">
+        <dc:Bounds x="802" y="492" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="779" y="535" width="84" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_SelAta" bpmnElement="Task_SelecionarAta">
+        <dc:Bounds x="620" y="260" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_VerComp" bpmnElement="Task_VerificarCompetitividade">
+        <dc:Bounds x="1120" y="260" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GWSaldo" bpmnElement="GW_SaldoDisponivel" isMarkerVisible="true">
+        <dc:Bounds x="975" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="959" y="225" width="81" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_EndSaldo" bpmnElement="End_SaldoEsgotado">
+        <dc:Bounds x="1162" y="352" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1147" y="395" width="68" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_EnvOF" bpmnElement="Task_EnviarOFAoFornecedor">
+        <dc:Bounds x="1940" y="260" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_AcompEnt" bpmnElement="Task_AcompanharEntrega">
+        <dc:Bounds x="1940" y="390" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_PreenOF" bpmnElement="Task_PreencherOF">
+        <dc:Bounds x="1440" y="260" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_ValOF" bpmnElement="Task_ValidarOF">
+        <dc:Bounds x="1610" y="260" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GWOf" bpmnElement="GW_OFValida" isMarkerVisible="true">
+        <dc:Bounds x="1805" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1793" y="251" width="74" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_CorrOF" bpmnElement="Task_CorrigirOF">
+        <dc:Bounds x="1760" y="370" width="140" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_RegParcial" bpmnElement="Task_RegistrarEntregaParcial">
+        <dc:Bounds x="2130" y="555" width="140" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_RecNF" bpmnElement="Task_ReceberNotaFiscal">
+        <dc:Bounds x="2260" y="260" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GWEntrega" bpmnElement="GW_EntregaConforme" isMarkerVisible="true">
+        <dc:Bounds x="2115" y="345" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2053" y="356" width="52" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Multa" bpmnElement="Task_AcionarMulta">
+        <dc:Bounds x="2080" y="480" width="140" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_TimerEnt" bpmnElement="Timer_EntregaExpirada">
+        <dc:Bounds x="1982" y="492" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1960" y="535" width="83" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_EndOk" bpmnElement="End_ProcessoConcluido">
+        <dc:Bounds x="1272" y="712" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1251" y="755" width="80" height="53" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_EndSusp" bpmnElement="End_Suspenso">
+        <dc:Bounds x="2322" y="810" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2299" y="853" width="85" height="53" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GWDot" bpmnElement="GW_DotacaoSuficiente" isMarkerVisible="true">
+        <dc:Bounds x="2055" y="705" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2046" y="655" width="65" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_AlertDot" bpmnElement="Task_AlertarSemDotacao">
+        <dc:Bounds x="2010" y="805" width="140" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_ResDot" bpmnElement="Task_ReservarDotacao">
+        <dc:Bounds x="1760" y="690" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Empenho" bpmnElement="Task_EmitirEmpenho">
+        <dc:Bounds x="1570" y="690" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Pagamento" bpmnElement="Task_EncaminharPagamento">
+        <dc:Bounds x="1380" y="690" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_VerDot" bpmnElement="Task_VerificarDotacao">
+        <dc:Bounds x="2260" y="690" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="E_F01" bpmnElement="F01">
+        <di:waypoint x="278" y="300" />
+        <di:waypoint x="320" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_TimerVenc" bpmnElement="F_TimerVenc">
+        <di:waypoint x="278" y="170" />
+        <di:waypoint x="320" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_NotifVenc" bpmnElement="F_NotifVenc">
+        <di:waypoint x="390" y="210" />
+        <di:waypoint x="390" y="260" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F02" bpmnElement="F02">
+        <di:waypoint x="460" y="300" />
+        <di:waypoint x="510" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_AtaSim" bpmnElement="F_AtaSim">
+        <di:waypoint x="560" y="300" />
+        <di:waypoint x="620" y="300" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="578" y="282" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_AtaNao" bpmnElement="F_AtaNao">
+        <di:waypoint x="535" y="325" />
+        <di:waypoint x="535" y="515" />
+        <di:waypoint x="610" y="515" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="537" y="408" width="77" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FimNovo1" bpmnElement="F_FimNovo1">
+        <di:waypoint x="750" y="511" />
+        <di:waypoint x="802" y="511" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F03" bpmnElement="F03">
+        <di:waypoint x="760" y="300" />
+        <di:waypoint x="800" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F04" bpmnElement="F04">
+        <di:waypoint x="940" y="300" />
+        <di:waypoint x="975" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SaldoSim" bpmnElement="F_SaldoSim">
+        <di:waypoint x="1025" y="300" />
+        <di:waypoint x="1120" y="300" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1028" y="306" width="83" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_SaldoNao" bpmnElement="F_SaldoNao">
+        <di:waypoint x="990" y="315" />
+        <di:waypoint x="990" y="590" />
+        <di:waypoint x="670" y="590" />
+        <di:waypoint x="670" y="550" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="899" y="556" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F05" bpmnElement="F05">
+        <di:waypoint x="1260" y="300" />
+        <di:waypoint x="1280" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_PrecoSim" bpmnElement="F_PrecoSim">
+        <di:waypoint x="1330" y="300" />
+        <di:waypoint x="1440" y="300" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1342" y="282" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_PrecoNao" bpmnElement="F_PrecoNao">
+        <di:waypoint x="1305" y="325" />
+        <di:waypoint x="1305" y="460" />
+        <di:waypoint x="680" y="460" />
+        <di:waypoint x="680" y="480" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1029" y="426" width="62" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F06" bpmnElement="F06">
+        <di:waypoint x="1580" y="300" />
+        <di:waypoint x="1610" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F10" bpmnElement="F10">
+        <di:waypoint x="2330" y="340" />
+        <di:waypoint x="2330" y="690" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FimSaldo" bpmnElement="F_FimSaldo">
+        <di:waypoint x="1000" y="325" />
+        <di:waypoint x="1000" y="370" />
+        <di:waypoint x="1162" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FimNovo2" bpmnElement="F_FimNovo2">
+        <di:waypoint x="1305" y="325" />
+        <di:waypoint x="1305" y="510" />
+        <di:waypoint x="840" y="510" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_TimerEnt" bpmnElement="F_TimerEnt">
+        <di:waypoint x="2018" y="510" />
+        <di:waypoint x="2080" y="510" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Multa" bpmnElement="F_Multa">
+        <di:waypoint x="2150" y="480" />
+        <di:waypoint x="2150" y="450" />
+        <di:waypoint x="2080" y="450" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_CorrOF" bpmnElement="F_CorrigidoOF">
+        <di:waypoint x="1760" y="405" />
+        <di:waypoint x="1680" y="405" />
+        <di:waypoint x="1680" y="340" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F07" bpmnElement="F07">
+        <di:waypoint x="1750" y="300" />
+        <di:waypoint x="1805" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_OFSim" bpmnElement="F_OFSim">
+        <di:waypoint x="1855" y="300" />
+        <di:waypoint x="1940" y="300" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1880" y="282" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_OFNao" bpmnElement="F_OFNao">
+        <di:waypoint x="1830" y="325" />
+        <di:waypoint x="1830" y="370" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1753" y="343" width="73" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F08" bpmnElement="F08">
+        <di:waypoint x="2010" y="340" />
+        <di:waypoint x="2010" y="390" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_VoltaAcomp" bpmnElement="F_VoltaAcomp">
+        <di:waypoint x="2130" y="590" />
+        <di:waypoint x="1950" y="590" />
+        <di:waypoint x="1950" y="470" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F09" bpmnElement="F09">
+        <di:waypoint x="2080" y="430" />
+        <di:waypoint x="2140" y="430" />
+        <di:waypoint x="2140" y="395" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_EntSim" bpmnElement="F_EntregaSim">
+        <di:waypoint x="2140" y="345" />
+        <di:waypoint x="2140" y="300" />
+        <di:waypoint x="2260" y="300" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2170" y="326" width="49" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_EntParcial" bpmnElement="F_EntregaParcial">
+        <di:waypoint x="2165" y="370" />
+        <di:waypoint x="2240" y="370" />
+        <di:waypoint x="2240" y="555" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2254" y="426" width="51" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FimOk" bpmnElement="F_FimOk">
+        <di:waypoint x="1380" y="730" />
+        <di:waypoint x="1308" y="730" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FimSusp" bpmnElement="F_FimSuspenso">
+        <di:waypoint x="2150" y="828" />
+        <di:waypoint x="2322" y="828" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F11" bpmnElement="F11">
+        <di:waypoint x="2260" y="730" />
+        <di:waypoint x="2105" y="730" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_DotSim" bpmnElement="F_DotSim">
+        <di:waypoint x="2055" y="730" />
+        <di:waypoint x="1900" y="730" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1956" y="712" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_DotNao" bpmnElement="F_DotNao">
+        <di:waypoint x="2080" y="755" />
+        <di:waypoint x="2080" y="805" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2087" y="774" width="21" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F12" bpmnElement="F12">
+        <di:waypoint x="1760" y="730" />
+        <di:waypoint x="1710" y="730" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F13" bpmnElement="F13">
+        <di:waypoint x="1570" y="730" />
+        <di:waypoint x="1520" y="730" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

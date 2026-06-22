@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="BPMN-01-fase-interna-completa" targetNamespace="http://g05.facape.br/fase-interna" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.2">
+  <collaboration id="Collab_FaseInterna">
+    <participant id="Pool_FACAPE" name="FACAPE — Fase Interna do Processo Licitatório" processRef="Proc_FaseInterna" />
+    <participant id="Pool_Prefeitura" name="Prefeitura de Petrolina (Externo)" processRef="Proc_Prefeitura" />
+    <messageFlow id="MF_EnvioPrefeitura" sourceRef="Task_EnviarPrefeitura" targetRef="Start_Prefeitura" />
+  </collaboration>
+  <process id="Proc_FaseInterna" isExecutable="false">
+    <laneSet id="LS_Interno">
+      <lane id="Lane_Juridico" name="Jurídico Interno">
+        <flowNodeRef>Task_ValidarDocumentacao</flowNodeRef>
+        <flowNodeRef>End_ProcessoAutuado</flowNodeRef>
+        <flowNodeRef>Task_EnviarPrefeitura</flowNodeRef>
+        <flowNodeRef>GW_DocumentacaoCompleta</flowNodeRef>
+        <flowNodeRef>Task_CorrigirDocumentacao</flowNodeRef>
+      </lane>
+      <lane id="Lane_Licitacoes" name="Setor de Licitações">
+        <flowNodeRef>End_Dispensa</flowNodeRef>
+        <flowNodeRef>Task_ConsultarPNCP</flowNodeRef>
+        <flowNodeRef>Task_ElaborarTR</flowNodeRef>
+      </lane>
+      <lane id="Lane_Compras" name="Setor de Compras">
+        <flowNodeRef>GW_ValorDispensa</flowNodeRef>
+        <flowNodeRef>Task_ElaborarETP</flowNodeRef>
+        <flowNodeRef>Task_ConsultarBancoPrecos</flowNodeRef>
+        <flowNodeRef>Task_ElaborarMapaRiscos</flowNodeRef>
+        <flowNodeRef>GW_MEEPP</flowNodeRef>
+      </lane>
+      <lane id="Lane_Almoxarifado" name="Almoxarifado">
+        <flowNodeRef>Task_ConsolidarDemandas</flowNodeRef>
+        <flowNodeRef>Task_GerarDFD</flowNodeRef>
+      </lane>
+      <lane id="Lane_Secretaria" name="Secretaria / Colegiado">
+        <flowNodeRef>Start_Necessidade</flowNodeRef>
+        <flowNodeRef>Task_RegistrarDemanda</flowNodeRef>
+      </lane>
+    </laneSet>
+    <startEvent id="Start_Necessidade" name="Necessidade de compra identificada">
+      <outgoing>F01</outgoing>
+    </startEvent>
+    <userTask id="Task_RegistrarDemanda" name="Registrar demanda de material ou servico">
+      <incoming>F01</incoming>
+      <outgoing>F02</outgoing>
+    </userTask>
+    <userTask id="Task_ConsolidarDemandas" name="Consolidar demandas das secretarias e verificar estoque">
+      <incoming>F02</incoming>
+      <outgoing>F03</outgoing>
+    </userTask>
+    <userTask id="Task_GerarDFD" name="Gerar Documento de Formalizacao da Demanda (DFD)">
+      <incoming>F03</incoming>
+      <outgoing>F04</outgoing>
+    </userTask>
+    <exclusiveGateway id="GW_ValorDispensa" name="Valor estimado igual ou menor que R$ 57.000?">
+      <incoming>F04</incoming>
+      <outgoing>F_SimDispensa</outgoing>
+      <outgoing>F_NaoDispensa</outgoing>
+    </exclusiveGateway>
+    <endEvent id="End_Dispensa" name="Contratacao por dispensa concluida">
+      <incoming>F_Dispensa</incoming>
+    </endEvent>
+    <userTask id="Task_Dispensa" name="Realizar contratacao por dispensa de licitacao">
+      <incoming>F_SimDispensa</incoming>
+      <outgoing>F_Dispensa</outgoing>
+    </userTask>
+    <userTask id="Task_ElaborarETP" name="Elaborar Estudo Tecnico Preliminar (ETP)">
+      <incoming>F_NaoDispensa</incoming>
+      <outgoing>F05</outgoing>
+    </userTask>
+    <serviceTask id="Task_ConsultarBancoPrecos" name="Consultar Banco de Precos gov.br (minimo 3 fornecedores)">
+      <incoming>F05</incoming>
+      <outgoing>F06</outgoing>
+    </serviceTask>
+    <userTask id="Task_ElaborarMapaRiscos" name="Elaborar Mapa de Riscos do produto (G05)">
+      <incoming>F06</incoming>
+      <outgoing>F07</outgoing>
+    </userTask>
+    <exclusiveGateway id="GW_MEEPP" name="Processo exclusivo ME/EPP ou ampla concorrencia?">
+      <incoming>F07</incoming>
+      <outgoing>F_NaoMEEPP</outgoing>
+      <outgoing>F_SimMEEPP</outgoing>
+    </exclusiveGateway>
+    <userTask id="Task_ValidarDocumentacao" name="Validar documentacao: DFD, ETP, Mapa de Riscos e TR">
+      <incoming>F10</incoming>
+      <incoming>F_Corrigido</incoming>
+      <outgoing>F11</outgoing>
+    </userTask>
+    <userTask id="Task_AplicarCotaMEEPP" name="Aplicar cota exclusiva ou reservada para ME/EPP (Lei 123/2006)">
+      <incoming>F_SimMEEPP</incoming>
+      <outgoing>F08</outgoing>
+    </userTask>
+    <serviceTask id="Task_ConsultarPNCP" name="Consultar PNCP — Portal Nacional de Compras Publicas">
+      <incoming>F09</incoming>
+      <outgoing>F10</outgoing>
+    </serviceTask>
+    <endEvent id="End_ProcessoAutuado" name="Processo autuado na Prefeitura" />
+    <userTask id="Task_EnviarPrefeitura" name="Enviar processo para a Prefeitura via sistema 1doc">
+      <incoming>F_DocOk</incoming>
+    </userTask>
+    <exclusiveGateway id="GW_DocumentacaoCompleta" name="Documentacao completa e conforme?">
+      <incoming>F11</incoming>
+      <outgoing>F_DocOk</outgoing>
+      <outgoing>F_DocIncompleta</outgoing>
+    </exclusiveGateway>
+    <userTask id="Task_CorrigirDocumentacao" name="Solicitar correcoes ao setor responsavel">
+      <incoming>F_DocIncompleta</incoming>
+      <outgoing>F_Corrigido</outgoing>
+    </userTask>
+    <userTask id="Task_ElaborarTR" name="Elaborar Termo de Referencia (TR)">
+      <incoming>F08</incoming>
+      <incoming>F_NaoMEEPP</incoming>
+      <outgoing>F09</outgoing>
+    </userTask>
+    <sequenceFlow id="F01" sourceRef="Start_Necessidade" targetRef="Task_RegistrarDemanda" />
+    <sequenceFlow id="F02" sourceRef="Task_RegistrarDemanda" targetRef="Task_ConsolidarDemandas" />
+    <sequenceFlow id="F03" sourceRef="Task_ConsolidarDemandas" targetRef="Task_GerarDFD" />
+    <sequenceFlow id="F04" sourceRef="Task_GerarDFD" targetRef="GW_ValorDispensa" />
+    <sequenceFlow id="F_SimDispensa" name="Sim — dispensa" sourceRef="GW_ValorDispensa" targetRef="Task_Dispensa" />
+    <sequenceFlow id="F_NaoDispensa" name="Nao — processo normal" sourceRef="GW_ValorDispensa" targetRef="Task_ElaborarETP" />
+    <sequenceFlow id="F_Dispensa" sourceRef="Task_Dispensa" targetRef="End_Dispensa" />
+    <sequenceFlow id="F05" sourceRef="Task_ElaborarETP" targetRef="Task_ConsultarBancoPrecos" />
+    <sequenceFlow id="F06" sourceRef="Task_ConsultarBancoPrecos" targetRef="Task_ElaborarMapaRiscos" />
+    <sequenceFlow id="F07" sourceRef="Task_ElaborarMapaRiscos" targetRef="GW_MEEPP" />
+    <sequenceFlow id="F_NaoMEEPP" name="Ampla concorrencia" sourceRef="GW_MEEPP" targetRef="Task_ElaborarTR" />
+    <sequenceFlow id="F_SimMEEPP" name="Exclusivo ME/EPP" sourceRef="GW_MEEPP" targetRef="Task_AplicarCotaMEEPP" />
+    <sequenceFlow id="F10" sourceRef="Task_ConsultarPNCP" targetRef="Task_ValidarDocumentacao" />
+    <sequenceFlow id="F_Corrigido" sourceRef="Task_CorrigirDocumentacao" targetRef="Task_ValidarDocumentacao" />
+    <sequenceFlow id="F11" sourceRef="Task_ValidarDocumentacao" targetRef="GW_DocumentacaoCompleta" />
+    <sequenceFlow id="F08" sourceRef="Task_AplicarCotaMEEPP" targetRef="Task_ElaborarTR" />
+    <sequenceFlow id="F09" sourceRef="Task_ElaborarTR" targetRef="Task_ConsultarPNCP" />
+    <sequenceFlow id="F_DocOk" name="Sim — documentacao ok" sourceRef="GW_DocumentacaoCompleta" targetRef="Task_EnviarPrefeitura" />
+    <sequenceFlow id="F_DocIncompleta" name="Nao — pendencias" sourceRef="GW_DocumentacaoCompleta" targetRef="Task_CorrigirDocumentacao" />
+  </process>
+  <process id="Proc_Prefeitura" isExecutable="false">
+    <startEvent id="Start_Prefeitura" name="Processo recebido da FACAPE">
+      <outgoing>FP01</outgoing>
+      <messageEventDefinition />
+    </startEvent>
+    <endEvent id="End_Prefeitura" name="Pregao realizado e resultado publicado">
+      <incoming>FP01</incoming>
+    </endEvent>
+    <sequenceFlow id="FP01" sourceRef="Start_Prefeitura" targetRef="End_Prefeitura" />
+  </process>
+  <bpmndi:BPMNDiagram id="Diag_01">
+    <bpmndi:BPMNPlane id="Plane_01" bpmnElement="Collab_FaseInterna">
+      <bpmndi:BPMNShape id="Pool_FACAPE_Shape" bpmnElement="Pool_FACAPE" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="2090" height="980" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Jur_Shape" bpmnElement="Lane_Juridico" isHorizontal="true">
+        <dc:Bounds x="190" y="770" width="2060" height="290" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Lic_Shape" bpmnElement="Lane_Licitacoes" isHorizontal="true">
+        <dc:Bounds x="190" y="640" width="2060" height="130" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Comp_Shape" bpmnElement="Lane_Compras" isHorizontal="true">
+        <dc:Bounds x="190" y="420" width="2060" height="220" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Alm_Shape" bpmnElement="Lane_Almoxarifado" isHorizontal="true">
+        <dc:Bounds x="190" y="280" width="2060" height="140" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Sec_Shape" bpmnElement="Lane_Secretaria" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="2060" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Start" bpmnElement="Start_Necessidade">
+        <dc:Bounds x="242" y="162" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="222" y="205" width="79" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_RegDem" bpmnElement="Task_RegistrarDemanda">
+        <dc:Bounds x="335" y="140" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_ConsDem" bpmnElement="Task_ConsolidarDemandas">
+        <dc:Bounds x="520" y="300" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_DFD" bpmnElement="Task_GerarDFD">
+        <dc:Bounds x="725" y="300" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GWValor" bpmnElement="GW_ValorDispensa" isMarkerVisible="true">
+        <dc:Bounds x="920" y="485" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="830.5" y="490" width="79" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_EndDisp" bpmnElement="End_Dispensa">
+        <dc:Bounds x="1092" y="652" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1071" y="694" width="81" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Dispensa" bpmnElement="Task_Dispensa">
+        <dc:Bounds x="870" y="605" width="150" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_ETP" bpmnElement="Task_ElaborarETP">
+        <dc:Bounds x="1065" y="470" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_BancoP" bpmnElement="Task_ConsultarBancoPrecos">
+        <dc:Bounds x="1305" y="470" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_MapaR" bpmnElement="Task_ElaborarMapaRiscos">
+        <dc:Bounds x="1515" y="470" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GWMEEPP" bpmnElement="GW_MEEPP" isMarkerVisible="true">
+        <dc:Bounds x="1785" y="485" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1765" y="421.5" width="90" height="53" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_ValDoc" bpmnElement="Task_ValidarDocumentacao">
+        <dc:Bounds x="1645" y="790" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_CotaME" bpmnElement="Task_AplicarCotaMEEPP">
+        <dc:Bounds x="1735" y="605" width="150" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_PNCP" bpmnElement="Task_ConsultarPNCP">
+        <dc:Bounds x="1645" y="700" width="150" height="60" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_EndAutuado" bpmnElement="End_ProcessoAutuado">
+        <dc:Bounds x="1502" y="992" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1477" y="1034" width="89" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Envia" bpmnElement="Task_EnviarPrefeitura">
+        <dc:Bounds x="1445" y="890" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GWDoc" bpmnElement="GW_DocumentacaoCompleta" isMarkerVisible="true">
+        <dc:Bounds x="1825" y="905" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1813" y="965" width="74" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Corrig" bpmnElement="Task_CorrigirDocumentacao">
+        <dc:Bounds x="2065" y="895" width="150" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_TR" bpmnElement="Task_ElaborarTR">
+        <dc:Bounds x="1985" y="670" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="E_F01" bpmnElement="F01">
+        <di:waypoint x="278" y="180" />
+        <di:waypoint x="335" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F02" bpmnElement="F02">
+        <di:waypoint x="425" y="220" />
+        <di:waypoint x="425" y="340" />
+        <di:waypoint x="520" y="340" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F03" bpmnElement="F03">
+        <di:waypoint x="670" y="340" />
+        <di:waypoint x="725" y="340" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F04" bpmnElement="F04">
+        <di:waypoint x="875" y="340" />
+        <di:waypoint x="945" y="340" />
+        <di:waypoint x="945" y="485" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FSimDisp" bpmnElement="F_SimDispensa">
+        <di:waypoint x="945" y="535" />
+        <di:waypoint x="945" y="605" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="923" y="608" width="81" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FDisp" bpmnElement="F_Dispensa">
+        <di:waypoint x="1020" y="640" />
+        <di:waypoint x="1056" y="640" />
+        <di:waypoint x="1056" y="664" />
+        <di:waypoint x="1093" y="664" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FNaoDisp" bpmnElement="F_NaoDispensa">
+        <di:waypoint x="970" y="510" />
+        <di:waypoint x="995" y="510" />
+        <di:waypoint x="995" y="530" />
+        <di:waypoint x="1065" y="530" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="969" y="476" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F05" bpmnElement="F05">
+        <di:waypoint x="1215" y="510" />
+        <di:waypoint x="1305" y="510" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F06" bpmnElement="F06">
+        <di:waypoint x="1455" y="510" />
+        <di:waypoint x="1515" y="510" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F07" bpmnElement="F07">
+        <di:waypoint x="1665" y="510" />
+        <di:waypoint x="1785" y="510" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FSimME" bpmnElement="F_SimMEEPP">
+        <di:waypoint x="1810" y="535" />
+        <di:waypoint x="1810" y="560" />
+        <di:waypoint x="1760" y="560" />
+        <di:waypoint x="1760" y="605" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1834" y="539" width="47" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FNaoME" bpmnElement="F_NaoMEEPP">
+        <di:waypoint x="1835" y="510" />
+        <di:waypoint x="2060" y="510" />
+        <di:waypoint x="2060" y="670" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2021" y="476" width="63" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F08" bpmnElement="F08">
+        <di:waypoint x="1885" y="640" />
+        <di:waypoint x="2060" y="640" />
+        <di:waypoint x="2060" y="670" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F09" bpmnElement="F09">
+        <di:waypoint x="1985" y="710" />
+        <di:waypoint x="1928" y="710" />
+        <di:waypoint x="1928" y="730" />
+        <di:waypoint x="1795" y="730" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F10" bpmnElement="F10">
+        <di:waypoint x="1720" y="760" />
+        <di:waypoint x="1720" y="790" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F11" bpmnElement="F11">
+        <di:waypoint x="1795" y="830" />
+        <di:waypoint x="1850" y="830" />
+        <di:waypoint x="1850" y="905" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FDocOk" bpmnElement="F_DocOk">
+        <di:waypoint x="1825" y="930" />
+        <di:waypoint x="1595" y="930" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1671" y="936" width="88" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FDocInc" bpmnElement="F_DocIncompleta">
+        <di:waypoint x="1875" y="930" />
+        <di:waypoint x="2065" y="930" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1954" y="936" width="57" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FCorrig" bpmnElement="F_Corrigido">
+        <di:waypoint x="2140" y="895" />
+        <di:waypoint x="2140" y="810" />
+        <di:waypoint x="1800" y="810" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Pool_Pref_Shape" bpmnElement="Pool_Prefeitura" isHorizontal="true">
+        <dc:Bounds x="160" y="1090" width="2090" height="140" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_StartPref" bpmnElement="Start_Prefeitura">
+        <dc:Bounds x="1502" y="1122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1492" y="1165" width="58" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_EndPref" bpmnElement="End_Prefeitura">
+        <dc:Bounds x="1880" y="1122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1857" y="1165" width="84" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="E_FP01" bpmnElement="FP01">
+        <di:waypoint x="1538" y="1140" />
+        <di:waypoint x="1880" y="1140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_MF" bpmnElement="MF_EnvioPrefeitura">
+        <di:waypoint x="1520" y="970" />
+        <di:waypoint x="1520" y="1122" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

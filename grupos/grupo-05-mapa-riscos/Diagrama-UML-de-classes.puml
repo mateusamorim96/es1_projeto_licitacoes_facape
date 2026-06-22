@@ -1,0 +1,97 @@
+@startuml
+
+skinparam backgroundColor #FAFAFA
+skinparam classBackgroundColor #EEF4FF
+skinparam classBorderColor #4A6FA5
+skinparam classHeaderBackgroundColor #5B8CDB
+skinparam classHeaderFontColor #FFFFFF
+skinparam classFontColor #1A1A2E
+skinparam classFontSize 11
+skinparam classAttributeFontSize 11
+skinparam stereotypeCBackgroundColor #D6E4F0
+skinparam stereotypeCBorderColor #2C3E7A
+skinparam ArrowColor #4A6FA5
+skinparam ArrowFontColor #2C3E7A
+skinparam ArrowFontSize 11
+skinparam NoteBorderColor #E6B800
+skinparam NoteBackgroundColor #FFFBEA
+skinparam NoteFontColor #5C4A00
+skinparam NoteFontSize 10
+
+title Diagrama de Classes - Modulo: Mapa de Riscos\nSistema de Gestao de Licitacoes FACAPE - Grupo 05
+
+' === ENUMERACAO DE CATEGORIA ===
+enum Categoria {
+  LEGAL_REGULATORIO
+  TECNICO_QUALIDADE
+  MERCADO_PRECO
+  OPERACIONAL_PRAZO
+  ORCAMENTARIO_FINANCEIRO
+}
+
+' === CLASSES PRINCIPAIS ===
+class MapaDeRiscos {
+  - id : UUID
+  - versao : Integer
+  - dataElaboracao : LocalDate
+  - status : String
+  --
+  + gerarMapa() : void
+  + validar() : Boolean
+}
+
+class Risco {
+  - id : UUID
+  - descricao : String
+  - causa : String
+  - consequencia : String
+  --
+  + calcularScore() : Integer
+}
+
+class Probabilidade {
+  - valor : Integer
+  - descricao : String
+  --
+  + getValor() : Integer
+}
+
+class Impacto {
+  - valor : Integer
+  - descricao : String
+  --
+  + getValor() : Integer
+}
+
+class Mitigacao {
+  - descricao : String
+  - tipo : String
+  - prazo : LocalDate
+  - responsavel : String
+  --
+  + registrar() : void
+}
+
+' === RELACIONAMENTOS ===
+MapaDeRiscos "1" *-- "1..*" Risco : contem >
+
+Risco "1" --> "1" Categoria : classificado em >
+Risco "1" *-- "1" Probabilidade : possui >
+Risco "1" *-- "1" Impacto : possui >
+Risco "1" *-- "1..*" Mitigacao : tratado por >
+
+' === NOTAS ===
+note right of Risco
+  Score = Probabilidade x Impacto
+  1-4: BAIXO  |  5-9: MEDIO
+  10-14: ALTO  |  15-25: CRITICO
+end note
+
+note right of Mitigacao
+  Tipos: Preventiva, Contingencial,
+  Transferencia ou Aceitacao.
+  Todo risco deve ter ao menos
+  uma Mitigacao (RN-MR-04).
+end note
+
+@enduml

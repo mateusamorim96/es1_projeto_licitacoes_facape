@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="BPMN-02-coleta-demandas" targetNamespace="http://g05.facape.br/coleta-demandas" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.2">
+  <collaboration id="Collab_Coleta">
+    <participant id="Pool_Coleta" name="FACAPE — Sub-processo: Coleta e Consolidação de Demandas" processRef="Proc_Coleta" />
+  </collaboration>
+  <process id="Proc_Coleta" isExecutable="false">
+    <laneSet id="LS_Coleta">
+      <lane id="Lane_Almoxarifado" name="Almoxarifado">
+        <flowNodeRef>End_DFDGerado</flowNodeRef>
+        <flowNodeRef>Task_ExcluirItemEstoque</flowNodeRef>
+        <flowNodeRef>Task_RegistrarItem</flowNodeRef>
+        <flowNodeRef>Task_GerarDFDFinal</flowNodeRef>
+        <flowNodeRef>Task_ReceberDemanda</flowNodeRef>
+        <flowNodeRef>GW_ItemEstoque</flowNodeRef>
+        <flowNodeRef>Task_ConsolidarDFD</flowNodeRef>
+        <flowNodeRef>Task_SolicitarCorrecao</flowNodeRef>
+        <flowNodeRef>GW_DemandaValida</flowNodeRef>
+      </lane>
+      <lane id="Lane_Secretarias" name="Secretarias">
+        <flowNodeRef>Task_ReceberNotificacao</flowNodeRef>
+        <flowNodeRef>Task_NotificarNaoResposta</flowNodeRef>
+        <flowNodeRef>GW_SecretariaRespondeu</flowNodeRef>
+        <flowNodeRef>Task_PreencherDemanda</flowNodeRef>
+        <flowNodeRef>Task_SubmeterDemanda</flowNodeRef>
+      </lane>
+      <lane id="Lane_Gestor" name="Gestor do PCA">
+        <flowNodeRef>Start_InicioColeta</flowNodeRef>
+        <flowNodeRef>Task_AbrirPeriodoColeta</flowNodeRef>
+        <flowNodeRef>Task_NotificarSecretarias</flowNodeRef>
+        <flowNodeRef>Task_EncerrarColeta</flowNodeRef>
+        <flowNodeRef>GW_PrazoAtingido</flowNodeRef>
+      </lane>
+    </laneSet>
+    <startEvent id="Start_InicioColeta" name="Inicio do periodo de planejamento anual">
+      <outgoing>F01</outgoing>
+    </startEvent>
+    <endEvent id="End_DFDGerado" name="DFD gerado e encaminhado ao Setor de Compras">
+      <incoming>F_DFDok</incoming>
+    </endEvent>
+    <userTask id="Task_AbrirPeriodoColeta" name="Abrir periodo de coleta de demandas">
+      <incoming>F01</incoming>
+      <outgoing>F02</outgoing>
+    </userTask>
+    <serviceTask id="Task_NotificarSecretarias" name="Notificar secretarias sobre prazo de envio de demandas">
+      <incoming>F02</incoming>
+      <outgoing>F03</outgoing>
+    </serviceTask>
+    <userTask id="Task_ExcluirItemEstoque" name="Excluir item da demanda (atendido pelo estoque)">
+      <incoming>F_EstoqueSim</incoming>
+      <outgoing>F_VoltaConsolidar</outgoing>
+    </userTask>
+    <userTask id="Task_RegistrarItem" name="Registrar item na lista de demandas consolidadas">
+      <incoming>F_EstoqueNao</incoming>
+      <outgoing>F07</outgoing>
+    </userTask>
+    <userTask id="Task_GerarDFDFinal" name="Gerar DFD final e encaminhar ao Setor de Compras">
+      <incoming>F_ValidaSim</incoming>
+      <incoming>F_CorrecaoOk</incoming>
+      <outgoing>F_DFDok</outgoing>
+    </userTask>
+    <userTask id="Task_EncerrarColeta" name="Encerrar periodo de coleta compulsoriamente">
+      <incoming>F_PrazoSim</incoming>
+      <incoming>F_SubmissaoOk</incoming>
+      <outgoing>F_Encerrar</outgoing>
+      <outgoing>Flow_0ezt64k</outgoing>
+    </userTask>
+    <exclusiveGateway id="GW_PrazoAtingido" name="Prazo de coleta atingido?">
+      <incoming>F03</incoming>
+      <incoming>Flow_0ezt64k</incoming>
+      <outgoing>F_PrazoSim</outgoing>
+      <outgoing>F_PrazoNao</outgoing>
+    </exclusiveGateway>
+    <userTask id="Task_ReceberNotificacao" name="Receber notificacao de abertura do periodo">
+      <incoming>F_PrazoNao</incoming>
+      <outgoing>F04</outgoing>
+    </userTask>
+    <serviceTask id="Task_NotificarNaoResposta" name="Notificar gestores sobre secretaria sem resposta">
+      <incoming>F_RespondeuNao</incoming>
+      <outgoing>F_VoltaPrazo</outgoing>
+    </serviceTask>
+    <exclusiveGateway id="GW_SecretariaRespondeu" name="Secretaria respondeu no prazo?">
+      <incoming>F04</incoming>
+      <outgoing>F_RespondeuSim</outgoing>
+      <outgoing>F_RespondeuNao</outgoing>
+    </exclusiveGateway>
+    <userTask id="Task_PreencherDemanda" name="Preencher formulario de demanda (tipo, quantidade, justificativa)">
+      <incoming>F_RespondeuSim</incoming>
+      <outgoing>F05</outgoing>
+    </userTask>
+    <userTask id="Task_SubmeterDemanda" name="Submeter demanda ao Almoxarifado">
+      <incoming>F05</incoming>
+      <outgoing>F_SubmissaoOk</outgoing>
+    </userTask>
+    <userTask id="Task_ReceberDemanda" name="Receber e registrar demanda da secretaria">
+      <incoming>F_Encerrar</incoming>
+      <outgoing>F06</outgoing>
+    </userTask>
+    <exclusiveGateway id="GW_ItemEstoque" name="Item ja disponivel em estoque?">
+      <incoming>F06</incoming>
+      <outgoing>F_EstoqueSim</outgoing>
+      <outgoing>F_EstoqueNao</outgoing>
+    </exclusiveGateway>
+    <userTask id="Task_ConsolidarDFD" name="Consolidar todas as demandas no DFD">
+      <incoming>F07</incoming>
+      <incoming>F_VoltaConsolidar</incoming>
+      <outgoing>F08</outgoing>
+    </userTask>
+    <userTask id="Task_SolicitarCorrecao" name="Solicitar correcao a secretaria (fracionamento ou dado incorreto)">
+      <incoming>F_ValidaNao</incoming>
+      <outgoing>F_CorrecaoOk</outgoing>
+    </userTask>
+    <exclusiveGateway id="GW_DemandaValida" name="Demanda valida e sem fracionamento indevido?">
+      <incoming>F08</incoming>
+      <outgoing>F_ValidaSim</outgoing>
+      <outgoing>F_ValidaNao</outgoing>
+    </exclusiveGateway>
+    <sequenceFlow id="F01" sourceRef="Start_InicioColeta" targetRef="Task_AbrirPeriodoColeta" />
+    <sequenceFlow id="F_DFDok" sourceRef="Task_GerarDFDFinal" targetRef="End_DFDGerado" />
+    <sequenceFlow id="F02" sourceRef="Task_AbrirPeriodoColeta" targetRef="Task_NotificarSecretarias" />
+    <sequenceFlow id="F03" sourceRef="Task_NotificarSecretarias" targetRef="GW_PrazoAtingido" />
+    <sequenceFlow id="F_EstoqueSim" name="Sim — excluir da demanda" sourceRef="GW_ItemEstoque" targetRef="Task_ExcluirItemEstoque" />
+    <sequenceFlow id="F_VoltaConsolidar" sourceRef="Task_ExcluirItemEstoque" targetRef="Task_ConsolidarDFD" />
+    <sequenceFlow id="F_EstoqueNao" name="Nao — incluir no DFD" sourceRef="GW_ItemEstoque" targetRef="Task_RegistrarItem" />
+    <sequenceFlow id="F07" sourceRef="Task_RegistrarItem" targetRef="Task_ConsolidarDFD" />
+    <sequenceFlow id="F_ValidaSim" name="Sim — DFD aprovado" sourceRef="GW_DemandaValida" targetRef="Task_GerarDFDFinal" />
+    <sequenceFlow id="F_CorrecaoOk" sourceRef="Task_SolicitarCorrecao" targetRef="Task_GerarDFDFinal" />
+    <sequenceFlow id="F_PrazoSim" name="Sim — prazo encerrado" sourceRef="GW_PrazoAtingido" targetRef="Task_EncerrarColeta" />
+    <sequenceFlow id="F_SubmissaoOk" sourceRef="Task_SubmeterDemanda" targetRef="Task_EncerrarColeta" />
+    <sequenceFlow id="F_Encerrar" sourceRef="Task_EncerrarColeta" targetRef="Task_ReceberDemanda" />
+    <sequenceFlow id="Flow_0ezt64k" sourceRef="Task_EncerrarColeta" targetRef="GW_PrazoAtingido" />
+    <sequenceFlow id="F_VoltaPrazo" sourceRef="Task_NotificarNaoResposta" targetRef="GW_PrazoAtingido" />
+    <sequenceFlow id="F_PrazoNao" name="Nao — aguardando respostas" sourceRef="GW_PrazoAtingido" targetRef="Task_ReceberNotificacao" />
+    <sequenceFlow id="F04" sourceRef="Task_ReceberNotificacao" targetRef="GW_SecretariaRespondeu" />
+    <sequenceFlow id="F_RespondeuNao" name="Nao — sem resposta" sourceRef="GW_SecretariaRespondeu" targetRef="Task_NotificarNaoResposta" />
+    <sequenceFlow id="F_RespondeuSim" name="Sim" sourceRef="GW_SecretariaRespondeu" targetRef="Task_PreencherDemanda" />
+    <sequenceFlow id="F05" sourceRef="Task_PreencherDemanda" targetRef="Task_SubmeterDemanda" />
+    <sequenceFlow id="F06" sourceRef="Task_ReceberDemanda" targetRef="GW_ItemEstoque" />
+    <sequenceFlow id="F08" sourceRef="Task_ConsolidarDFD" targetRef="GW_DemandaValida" />
+    <sequenceFlow id="F_ValidaNao" name="Nao — corrigir" sourceRef="GW_DemandaValida" targetRef="Task_SolicitarCorrecao" />
+  </process>
+  <bpmndi:BPMNDiagram id="Diag_02">
+    <bpmndi:BPMNPlane id="Plane_02" bpmnElement="Collab_Coleta">
+      <bpmndi:BPMNShape id="Pool_Coleta_Shape" bpmnElement="Pool_Coleta" isHorizontal="true">
+        <dc:Bounds x="160" y="60" width="1970" height="760" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Alm_Shape" bpmnElement="Lane_Almoxarifado" isHorizontal="true">
+        <dc:Bounds x="190" y="470" width="1940" height="350" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Sec_Shape" bpmnElement="Lane_Secretarias" isHorizontal="true">
+        <dc:Bounds x="190" y="240" width="1940" height="230" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Ges_Shape" bpmnElement="Lane_Gestor" isHorizontal="true">
+        <dc:Bounds x="190" y="60" width="1940" height="180" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Start" bpmnElement="Start_InicioColeta">
+        <dc:Bounds x="242" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="220" y="175" width="82" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End" bpmnElement="End_DFDGerado">
+        <dc:Bounds x="1340" y="712" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1314" y="755" width="90" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_AbrirP" bpmnElement="Task_AbrirPeriodoColeta">
+        <dc:Bounds x="320" y="110" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_NotifSec" bpmnElement="Task_NotificarSecretarias">
+        <dc:Bounds x="520" y="110" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_ExclEst" bpmnElement="Task_ExcluirItemEstoque">
+        <dc:Bounds x="1320" y="510" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_RegItem" bpmnElement="Task_RegistrarItem">
+        <dc:Bounds x="1320" y="620" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GerarDFD" bpmnElement="Task_GerarDFDFinal">
+        <dc:Bounds x="1520" y="690" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Encerrar" bpmnElement="Task_EncerrarColeta">
+        <dc:Bounds x="975" y="110" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GWPrazo" bpmnElement="GW_PrazoAtingido" isMarkerVisible="true">
+        <dc:Bounds x="745" y="125" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="731" y="87.5" width="77" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_RecNotif" bpmnElement="Task_ReceberNotificacao">
+        <dc:Bounds x="320" y="300" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_NotifNR" bpmnElement="Task_NotificarNaoResposta">
+        <dc:Bounds x="855" y="380" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GWSec" bpmnElement="GW_SecretariaRespondeu" isMarkerVisible="true">
+        <dc:Bounds x="685" y="315" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="676" y="265" width="68" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_PreenchD" bpmnElement="Task_PreencherDemanda">
+        <dc:Bounds x="1125" y="300" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_SubDem" bpmnElement="Task_SubmeterDemanda">
+        <dc:Bounds x="1365" y="300" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_RecDem" bpmnElement="Task_ReceberDemanda">
+        <dc:Bounds x="735" y="530" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GWEstq" bpmnElement="GW_ItemEstoque" isMarkerVisible="true">
+        <dc:Bounds x="1045" y="545" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1036" y="500" width="68" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_ConsDFD" bpmnElement="Task_ConsolidarDFD">
+        <dc:Bounds x="1535" y="510" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_SolCorr" bpmnElement="Task_SolicitarCorrecao">
+        <dc:Bounds x="1835" y="690" width="150" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GWVal" bpmnElement="GW_DemandaValida" isMarkerVisible="true">
+        <dc:Bounds x="1775" y="545" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1755" y="481.5" width="89" height="53" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="E_F01" bpmnElement="F01">
+        <di:waypoint x="278" y="150" />
+        <di:waypoint x="320" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F02" bpmnElement="F02">
+        <di:waypoint x="470" y="150" />
+        <di:waypoint x="520" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F03" bpmnElement="F03">
+        <di:waypoint x="670" y="150" />
+        <di:waypoint x="745" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FPrazoNao" bpmnElement="F_PrazoNao">
+        <di:waypoint x="770" y="175" />
+        <di:waypoint x="770" y="410" />
+        <di:waypoint x="395" y="410" />
+        <di:waypoint x="395" y="380" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="565" y="420" width="59" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FPrazoSim" bpmnElement="F_PrazoSim">
+        <di:waypoint x="795" y="150" />
+        <di:waypoint x="975" y="150" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="860" y="116" width="64" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FEncerrar" bpmnElement="F_Encerrar">
+        <di:waypoint x="1050" y="190" />
+        <di:waypoint x="1050" y="500" />
+        <di:waypoint x="810" y="500" />
+        <di:waypoint x="810" y="530" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F04" bpmnElement="F04">
+        <di:waypoint x="470" y="340" />
+        <di:waypoint x="685" y="340" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FResSim" bpmnElement="F_RespondeuSim">
+        <di:waypoint x="735" y="340" />
+        <di:waypoint x="1125" y="340" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="913" y="322" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FResNao" bpmnElement="F_RespondeuNao">
+        <di:waypoint x="710" y="365" />
+        <di:waypoint x="710" y="420" />
+        <di:waypoint x="855" y="420" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="750" y="426" width="59" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FVoltaPrazo" bpmnElement="F_VoltaPrazo">
+        <di:waypoint x="855" y="400" />
+        <di:waypoint x="780" y="400" />
+        <di:waypoint x="780" y="165" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F05" bpmnElement="F05">
+        <di:waypoint x="1275" y="340" />
+        <di:waypoint x="1365" y="340" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FSubOk" bpmnElement="F_SubmissaoOk">
+        <di:waypoint x="1440" y="300" />
+        <di:waypoint x="1440" y="150" />
+        <di:waypoint x="1125" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F06" bpmnElement="F06">
+        <di:waypoint x="810" y="610" />
+        <di:waypoint x="810" y="630" />
+        <di:waypoint x="990" y="630" />
+        <di:waypoint x="990" y="570" />
+        <di:waypoint x="1045" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FEstSim" bpmnElement="F_EstoqueSim">
+        <di:waypoint x="1095" y="570" />
+        <di:waypoint x="1278" y="570" />
+        <di:waypoint x="1278" y="550" />
+        <di:waypoint x="1320" y="550" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1148" y="536" width="84" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FEstNao" bpmnElement="F_EstoqueNao">
+        <di:waypoint x="1070" y="595" />
+        <di:waypoint x="1070" y="660" />
+        <di:waypoint x="1320" y="660" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1157" y="626" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FVoltaCons" bpmnElement="F_VoltaConsolidar">
+        <di:waypoint x="1470" y="550" />
+        <di:waypoint x="1535" y="550" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F07" bpmnElement="F07">
+        <di:waypoint x="1470" y="660" />
+        <di:waypoint x="1610" y="660" />
+        <di:waypoint x="1610" y="590" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F08" bpmnElement="F08">
+        <di:waypoint x="1685" y="550" />
+        <di:waypoint x="1715" y="550" />
+        <di:waypoint x="1715" y="570" />
+        <di:waypoint x="1775" y="570" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FValSim" bpmnElement="F_ValidaSim">
+        <di:waypoint x="1800" y="595" />
+        <di:waypoint x="1800" y="730" />
+        <di:waypoint x="1670" y="730" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1805" y="642" width="59" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FValNao" bpmnElement="F_ValidaNao">
+        <di:waypoint x="1825" y="570" />
+        <di:waypoint x="1910" y="570" />
+        <di:waypoint x="1910" y="690" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1843" y="548" width="73" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FCorr" bpmnElement="F_CorrecaoOk">
+        <di:waypoint x="1910" y="770" />
+        <di:waypoint x="1910" y="790" />
+        <di:waypoint x="1595" y="790" />
+        <di:waypoint x="1595" y="770" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_FDFDok" bpmnElement="F_DFDok">
+        <di:waypoint x="1520" y="730" />
+        <di:waypoint x="1376" y="730" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ezt64k_di" bpmnElement="Flow_0ezt64k">
+        <di:waypoint x="975" y="150" />
+        <di:waypoint x="795" y="150" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

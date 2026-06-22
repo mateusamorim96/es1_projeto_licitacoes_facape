@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="BPMN-G05-mapa-riscos" targetNamespace="http://g05.facape.br/mapa-riscos" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.2">
+  <collaboration id="Collab_G05">
+    <participant id="Pool_G05" name="Modulo G05 — Mapa de Riscos | FACAPE" processRef="Proc_G05" />
+  </collaboration>
+  <process id="Proc_G05" isExecutable="false">
+    <laneSet id="LS_G05">
+      <lane id="Lane_CC" name="Chefe de Compras">
+        <flowNodeRef>End_Aprovado</flowNodeRef>
+        <flowNodeRef>Task_RegistrarRejeicao</flowNodeRef>
+        <flowNodeRef>Task_AprovarMapa</flowNodeRef>
+        <flowNodeRef>GW_DecisaoFinal</flowNodeRef>
+      </lane>
+      <lane id="Lane_JI" name="Juridico Interno">
+        <flowNodeRef>Task_ValidarJuridico</flowNodeRef>
+        <flowNodeRef>Task_RegistrarParecerNeg</flowNodeRef>
+        <flowNodeRef>GW_PareceJuridico</flowNodeRef>
+        <flowNodeRef>End_Revisao</flowNodeRef>
+      </lane>
+      <lane id="Lane_Sys" name="Sistema (automatico)">
+        <flowNodeRef>Task_CalcularScore</flowNodeRef>
+        <flowNodeRef>Task_ClassificarNivel</flowNodeRef>
+        <flowNodeRef>GW_ScoreCritico</flowNodeRef>
+        <flowNodeRef>Task_AlertarCritico</flowNodeRef>
+        <flowNodeRef>Task_ValidarCompletude</flowNodeRef>
+        <flowNodeRef>GW_MapaCompleto</flowNodeRef>
+        <flowNodeRef>Task_GerarMapa</flowNodeRef>
+      </lane>
+      <lane id="Lane_CL" name="Chefe de Licitacoes">
+        <flowNodeRef>Start_TR</flowNodeRef>
+        <flowNodeRef>Task_AnalisarTR</flowNodeRef>
+        <flowNodeRef>Task_IdentificarRisco</flowNodeRef>
+        <flowNodeRef>Task_CategorizarRisco</flowNodeRef>
+        <flowNodeRef>Task_InformarPI</flowNodeRef>
+        <flowNodeRef>Task_DefinirMitigacao</flowNodeRef>
+        <flowNodeRef>Task_CorrigirPend</flowNodeRef>
+        <flowNodeRef>GW_MaisRiscos</flowNodeRef>
+        <flowNodeRef>Task_SubmeterMapa</flowNodeRef>
+      </lane>
+    </laneSet>
+    <userTask id="Task_ValidarJuridico" name="Validar riscos criticos&#10;do ponto de vista legal">
+      <incoming>F_sub_jur</incoming>
+      <outgoing>F_jur_dec</outgoing>
+    </userTask>
+    <userTask id="Task_RegistrarParecerNeg" name="Registrar parecer negativo&#10;e solicitar revisao">
+      <incoming>F_jur_neg</incoming>
+      <outgoing>F_fim_rev1</outgoing>
+    </userTask>
+    <endEvent id="End_Aprovado" name="Mapa aprovado disponivel para G06">
+      <incoming>F_fim_ok</incoming>
+      <incoming>F_fim_rev2</incoming>
+    </endEvent>
+    <userTask id="Task_RegistrarRejeicao" name="Registrar motivo da rejeicao">
+      <incoming>F_rejeitar</incoming>
+      <outgoing>F_fim_rev2</outgoing>
+      <outgoing>Flow_07xhsxk</outgoing>
+    </userTask>
+    <userTask id="Task_AprovarMapa" name="Revisar e aprovar Mapa de Riscos">
+      <incoming>Flow_0wl5k3o</incoming>
+      <outgoing>F_dec</outgoing>
+    </userTask>
+    <exclusiveGateway id="GW_DecisaoFinal" name="Decisao final?">
+      <incoming>F_dec</incoming>
+      <outgoing>F_fim_ok</outgoing>
+      <outgoing>F_rejeitar</outgoing>
+      <outgoing>Flow_0wl5k3o</outgoing>
+    </exclusiveGateway>
+    <exclusiveGateway id="GW_PareceJuridico" name="Parecer juridico?">
+      <incoming>F_jur_dec</incoming>
+      <outgoing>F_jur_neg</outgoing>
+      <outgoing>F_jur_ok</outgoing>
+    </exclusiveGateway>
+    <startEvent id="Start_TR" name="TR recebido do G04">
+      <outgoing>F01</outgoing>
+    </startEvent>
+    <userTask id="Task_AnalisarTR" name="Analisar Termo de Referencia">
+      <incoming>F01</incoming>
+      <outgoing>F02</outgoing>
+    </userTask>
+    <userTask id="Task_IdentificarRisco" name="Identificar risco do produto&#10;(preco, especificacao, ambiente,&#10;mercado ou manutencao)">
+      <incoming>F02</incoming>
+      <incoming>F_corrig</incoming>
+      <incoming>F_loop</incoming>
+      <outgoing>F03</outgoing>
+    </userTask>
+    <userTask id="Task_CategorizarRisco" name="Categorizar risco&#10;(Legal, Tecnico, Mercado,&#10;Operacional, Financeiro)">
+      <incoming>F03</incoming>
+      <outgoing>F04</outgoing>
+    </userTask>
+    <userTask id="Task_InformarPI" name="Informar probabilidade (1-5)&#10;e impacto (1-5)">
+      <incoming>F04</incoming>
+      <outgoing>F05</outgoing>
+    </userTask>
+    <userTask id="Task_DefinirMitigacao" name="Definir mitigacao&#10;(Preventiva, Contingencial,&#10;Transferencia ou Aceitacao)">
+      <incoming>F_score_nao</incoming>
+      <incoming>Flow_1lxh27d</incoming>
+      <outgoing>F09</outgoing>
+    </userTask>
+    <userTask id="Task_CorrigirPend" name="Corrigir riscos sem mitigacao">
+      <incoming>F_incompleto</incoming>
+      <outgoing>F_corrig</outgoing>
+    </userTask>
+    <exclusiveGateway id="GW_MaisRiscos" name="Ha mais riscos?">
+      <incoming>F09</incoming>
+      <incoming>F_alerta_ok</incoming>
+      <outgoing>F_loop</outgoing>
+      <outgoing>F10</outgoing>
+      <outgoing>Flow_1lxh27d</outgoing>
+    </exclusiveGateway>
+    <serviceTask id="Task_CalcularScore" name="Calcular score&#10;(probabilidade x impacto)">
+      <incoming>F05</incoming>
+      <outgoing>F06</outgoing>
+    </serviceTask>
+    <serviceTask id="Task_ClassificarNivel" name="Classificar nivel do risco&#10;(Baixo / Medio / Alto / Critico)">
+      <incoming>F06</incoming>
+      <outgoing>F07</outgoing>
+    </serviceTask>
+    <exclusiveGateway id="GW_ScoreCritico" name="Score maior ou igual a 15?">
+      <incoming>F07</incoming>
+      <outgoing>F_score_sim</outgoing>
+      <outgoing>F_score_nao</outgoing>
+    </exclusiveGateway>
+    <serviceTask id="Task_AlertarCritico" name="Alertar: risco critico&#10;exige validacao juridica (RN-MR-03)">
+      <incoming>F_score_sim</incoming>
+      <outgoing>F_alerta_ok</outgoing>
+    </serviceTask>
+    <serviceTask id="Task_ValidarCompletude" name="Validar completude do mapa&#10;(todo risco tem mitigacao?)">
+      <incoming>F10</incoming>
+      <outgoing>F11</outgoing>
+    </serviceTask>
+    <exclusiveGateway id="GW_MapaCompleto" name="Mapa completo?">
+      <incoming>F11</incoming>
+      <outgoing>F_completo</outgoing>
+      <outgoing>F_incompleto</outgoing>
+    </exclusiveGateway>
+    <userTask id="Task_SubmeterMapa" name="Submeter mapa para aprovacao">
+      <incoming>F_gerar_sub</incoming>
+      <outgoing>F_sub_jur</outgoing>
+    </userTask>
+    <serviceTask id="Task_GerarMapa" name="Gerar Mapa de Riscos&#10;e notificar Chefe de Compras">
+      <incoming>F_completo</incoming>
+      <outgoing>F_gerar_sub</outgoing>
+    </serviceTask>
+    <sequenceFlow id="F_sub_jur" sourceRef="Task_SubmeterMapa" targetRef="Task_ValidarJuridico" />
+    <sequenceFlow id="F_jur_dec" sourceRef="Task_ValidarJuridico" targetRef="GW_PareceJuridico" />
+    <sequenceFlow id="F_jur_neg" name="Desfavoravel" sourceRef="GW_PareceJuridico" targetRef="Task_RegistrarParecerNeg" />
+    <sequenceFlow id="F_fim_rev1" sourceRef="Task_RegistrarParecerNeg" targetRef="End_Revisao" />
+    <sequenceFlow id="F_fim_ok" name="Aprovar" sourceRef="GW_DecisaoFinal" targetRef="End_Aprovado" />
+    <sequenceFlow id="F_fim_rev2" sourceRef="Task_RegistrarRejeicao" targetRef="End_Aprovado" />
+    <sequenceFlow id="F_rejeitar" name="Rejeitar" sourceRef="GW_DecisaoFinal" targetRef="Task_RegistrarRejeicao" />
+    <sequenceFlow id="Flow_0wl5k3o" sourceRef="GW_DecisaoFinal" targetRef="Task_AprovarMapa" />
+    <sequenceFlow id="F_dec" sourceRef="Task_AprovarMapa" targetRef="GW_DecisaoFinal" />
+    <sequenceFlow id="F_jur_ok" name="Favoravel" sourceRef="GW_PareceJuridico" targetRef="End_Revisao" />
+    <sequenceFlow id="F01" sourceRef="Start_TR" targetRef="Task_AnalisarTR" />
+    <sequenceFlow id="F02" sourceRef="Task_AnalisarTR" targetRef="Task_IdentificarRisco" />
+    <sequenceFlow id="F_corrig" sourceRef="Task_CorrigirPend" targetRef="Task_IdentificarRisco" />
+    <sequenceFlow id="F_loop" name="Sim - proximo risco" sourceRef="GW_MaisRiscos" targetRef="Task_IdentificarRisco" />
+    <sequenceFlow id="F03" sourceRef="Task_IdentificarRisco" targetRef="Task_CategorizarRisco" />
+    <sequenceFlow id="F04" sourceRef="Task_CategorizarRisco" targetRef="Task_InformarPI" />
+    <sequenceFlow id="F05" sourceRef="Task_InformarPI" targetRef="Task_CalcularScore" />
+    <sequenceFlow id="F_score_nao" name="Nao" sourceRef="GW_ScoreCritico" targetRef="Task_DefinirMitigacao" />
+    <sequenceFlow id="Flow_1lxh27d" sourceRef="GW_MaisRiscos" targetRef="Task_DefinirMitigacao" />
+    <sequenceFlow id="F09" sourceRef="Task_DefinirMitigacao" targetRef="GW_MaisRiscos" />
+    <sequenceFlow id="F_incompleto" name="Nao - pendencias" sourceRef="GW_MapaCompleto" targetRef="Task_CorrigirPend" />
+    <sequenceFlow id="F_alerta_ok" sourceRef="Task_AlertarCritico" targetRef="GW_MaisRiscos" />
+    <sequenceFlow id="F10" name="Nao - todos identificados" sourceRef="GW_MaisRiscos" targetRef="Task_ValidarCompletude" />
+    <sequenceFlow id="F06" sourceRef="Task_CalcularScore" targetRef="Task_ClassificarNivel" />
+    <sequenceFlow id="F07" sourceRef="Task_ClassificarNivel" targetRef="GW_ScoreCritico" />
+    <sequenceFlow id="F_score_sim" name="Sim - score critico" sourceRef="GW_ScoreCritico" targetRef="Task_AlertarCritico" />
+    <sequenceFlow id="F11" sourceRef="Task_ValidarCompletude" targetRef="GW_MapaCompleto" />
+    <sequenceFlow id="F_completo" name="Sim" sourceRef="GW_MapaCompleto" targetRef="Task_GerarMapa" />
+    <sequenceFlow id="F_gerar_sub" sourceRef="Task_GerarMapa" targetRef="Task_SubmeterMapa" />
+    <endEvent id="End_Revisao" name="Mapa devolvido para revisao">
+      <incoming>F_fim_rev1</incoming>
+      <incoming>F_jur_ok</incoming>
+      <incoming>Flow_07xhsxk</incoming>
+    </endEvent>
+    <sequenceFlow id="Flow_07xhsxk" sourceRef="Task_RegistrarRejeicao" targetRef="End_Revisao" />
+  </process>
+  <bpmndi:BPMNDiagram id="Diag_G05">
+    <bpmndi:BPMNPlane id="Plane_G05" bpmnElement="Collab_G05">
+      <bpmndi:BPMNShape id="Pool_Shape" bpmnElement="Pool_G05" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1940" height="1020" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_CL_Shape" bpmnElement="Lane_CL" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="1910" height="270" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Sys_Shape" bpmnElement="Lane_Sys" isHorizontal="true">
+        <dc:Bounds x="190" y="350" width="1910" height="230" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_JI_Shape" bpmnElement="Lane_JI" isHorizontal="true">
+        <dc:Bounds x="190" y="580" width="1910" height="250" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_CC_Shape" bpmnElement="Lane_CC" isHorizontal="true">
+        <dc:Bounds x="190" y="830" width="1910" height="270" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_ValJur" bpmnElement="Task_ValidarJuridico">
+        <dc:Bounds x="1640" y="600" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_ParNeg" bpmnElement="Task_RegistrarParecerNeg">
+        <dc:Bounds x="1640" y="695" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_EndOk" bpmnElement="End_Aprovado">
+        <dc:Bounds x="1962" y="1002" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1941" y="1040" width="77" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_RegRej" bpmnElement="Task_RegistrarRejeicao">
+        <dc:Bounds x="1640" y="980" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_AprMapa" bpmnElement="Task_AprovarMapa">
+        <dc:Bounds x="1640" y="850" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GWDec" bpmnElement="GW_DecisaoFinal" isMarkerVisible="true">
+        <dc:Bounds x="1955" y="865" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1895" y="853" width="70" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GWJur" bpmnElement="GW_PareceJuridico" isMarkerVisible="true">
+        <dc:Bounds x="1955" y="615" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1938" y="593" width="83" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_TR_Shape" bpmnElement="Start_TR">
+        <dc:Bounds x="242" y="212" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="224" y="255" width="75" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_AnTR" bpmnElement="Task_AnalisarTR">
+        <dc:Bounds x="320" y="190" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_IdR" bpmnElement="Task_IdentificarRisco">
+        <dc:Bounds x="510" y="190" width="140" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_CatR" bpmnElement="Task_CategorizarRisco">
+        <dc:Bounds x="700" y="190" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_PI" bpmnElement="Task_InformarPI">
+        <dc:Bounds x="900" y="190" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_DefMit" bpmnElement="Task_DefinirMitigacao">
+        <dc:Bounds x="1080" y="190" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Corrig" bpmnElement="Task_CorrigirPend">
+        <dc:Bounds x="1580" y="190" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GWMais" bpmnElement="GW_MaisRiscos" isMarkerVisible="true">
+        <dc:Bounds x="1335" y="205" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1270" y="255" width="79" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_CalcSc" bpmnElement="Task_CalcularScore">
+        <dc:Bounds x="660" y="430" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_ClassN" bpmnElement="Task_ClassificarNivel">
+        <dc:Bounds x="850" y="430" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GWSc" bpmnElement="GW_ScoreCritico" isMarkerVisible="true">
+        <dc:Bounds x="1045" y="445" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1033" y="495" width="75" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Alert" bpmnElement="Task_AlertarCritico">
+        <dc:Bounds x="1230" y="430" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_ValComp" bpmnElement="Task_ValidarCompletude">
+        <dc:Bounds x="1430" y="430" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GWMapa" bpmnElement="GW_MapaCompleto" isMarkerVisible="true">
+        <dc:Bounds x="1625" y="445" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1609" y="495" width="82" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Sub" bpmnElement="Task_SubmeterMapa">
+        <dc:Bounds x="1760" y="190" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_GerarM" bpmnElement="Task_GerarMapa">
+        <dc:Bounds x="1880" y="430" width="140" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_166394b_di" bpmnElement="End_Revisao">
+        <dc:Bounds x="1962" y="732" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2008" y="756" width="78" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="E_Fsub" bpmnElement="F_sub_jur">
+        <di:waypoint x="1830" y="270" />
+        <di:waypoint x="1830" y="474" />
+        <di:waypoint x="1710" y="474" />
+        <di:waypoint x="1710" y="600" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Fjurdec" bpmnElement="F_jur_dec">
+        <di:waypoint x="1780" y="640" />
+        <di:waypoint x="1955" y="640" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Fjurneg" bpmnElement="F_jur_neg">
+        <di:waypoint x="1955" y="640" />
+        <di:waypoint x="1920" y="640" />
+        <di:waypoint x="1920" y="735" />
+        <di:waypoint x="1780" y="735" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1847" y="703" width="65" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Frev1" bpmnElement="F_fim_rev1">
+        <di:waypoint x="1780" y="747" />
+        <di:waypoint x="1962" y="747" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Fok" bpmnElement="F_fim_ok">
+        <di:waypoint x="1980" y="915" />
+        <di:waypoint x="1980" y="1002" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1930" y="943" width="39" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Frev2" bpmnElement="F_fim_rev2">
+        <di:waypoint x="1780" y="1020" />
+        <di:waypoint x="1962" y="1020" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Frejeitar" bpmnElement="F_rejeitar">
+        <di:waypoint x="1955" y="890" />
+        <di:waypoint x="1870" y="890" />
+        <di:waypoint x="1870" y="1020" />
+        <di:waypoint x="1780" y="1020" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1820" y="943" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0wl5k3o_di" bpmnElement="Flow_0wl5k3o">
+        <di:waypoint x="1955" y="890" />
+        <di:waypoint x="1780" y="890" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Fdec" bpmnElement="F_dec">
+        <di:waypoint x="1780" y="890" />
+        <di:waypoint x="1955" y="890" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Fjurok" bpmnElement="F_jur_ok">
+        <di:waypoint x="1980" y="665" />
+        <di:waypoint x="1980" y="732" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1995" y="693" width="49" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F01" bpmnElement="F01">
+        <di:waypoint x="278" y="230" />
+        <di:waypoint x="320" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F02" bpmnElement="F02">
+        <di:waypoint x="460" y="230" />
+        <di:waypoint x="510" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Fcorrig" bpmnElement="F_corrig">
+        <di:waypoint x="1650" y="190" />
+        <di:waypoint x="1650" y="100" />
+        <di:waypoint x="580" y="100" />
+        <di:waypoint x="580" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Floop" bpmnElement="F_loop">
+        <di:waypoint x="1360" y="205" />
+        <di:waypoint x="1360" y="120" />
+        <di:waypoint x="580" y="120" />
+        <di:waypoint x="580" y="190" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="985" y="126" width="73" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F03" bpmnElement="F03">
+        <di:waypoint x="650" y="230" />
+        <di:waypoint x="700" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F04" bpmnElement="F04">
+        <di:waypoint x="840" y="230" />
+        <di:waypoint x="900" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F05" bpmnElement="F05">
+        <di:waypoint x="970" y="270" />
+        <di:waypoint x="970" y="350" />
+        <di:waypoint x="730" y="350" />
+        <di:waypoint x="730" y="430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Fnao" bpmnElement="F_score_nao">
+        <di:waypoint x="1070" y="445" />
+        <di:waypoint x="1070" y="358" />
+        <di:waypoint x="1150" y="358" />
+        <di:waypoint x="1150" y="270" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1077" y="395" width="21" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1lxh27d_di" bpmnElement="Flow_1lxh27d">
+        <di:waypoint x="1335" y="230" />
+        <di:waypoint x="1220" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F09" bpmnElement="F09">
+        <di:waypoint x="1220" y="230" />
+        <di:waypoint x="1335" y="230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Fincomp" bpmnElement="F_incompleto">
+        <di:waypoint x="1650" y="445" />
+        <di:waypoint x="1650" y="270" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1556" y="363" width="87" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Falerta" bpmnElement="F_alerta_ok">
+        <di:waypoint x="1300" y="430" />
+        <di:waypoint x="1300" y="343" />
+        <di:waypoint x="1360" y="343" />
+        <di:waypoint x="1360" y="255" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F10" bpmnElement="F10">
+        <di:waypoint x="1385" y="230" />
+        <di:waypoint x="1500" y="230" />
+        <di:waypoint x="1500" y="430" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1415" y="242" width="81" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F06" bpmnElement="F06">
+        <di:waypoint x="800" y="470" />
+        <di:waypoint x="850" y="470" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F07" bpmnElement="F07">
+        <di:waypoint x="990" y="470" />
+        <di:waypoint x="1045" y="470" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Fsim" bpmnElement="F_score_sim">
+        <di:waypoint x="1095" y="470" />
+        <di:waypoint x="1230" y="470" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1126" y="452" width="88" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_F11" bpmnElement="F11">
+        <di:waypoint x="1570" y="470" />
+        <di:waypoint x="1625" y="470" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Fcompleto" bpmnElement="F_completo">
+        <di:waypoint x="1675" y="470" />
+        <di:waypoint x="1880" y="470" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1755" y="452" width="19" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="E_Fgerar" bpmnElement="F_gerar_sub">
+        <di:waypoint x="1950" y="430" />
+        <di:waypoint x="1950" y="350" />
+        <di:waypoint x="1830" y="350" />
+        <di:waypoint x="1830" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07xhsxk_di" bpmnElement="Flow_07xhsxk">
+        <di:waypoint x="1640" y="1020" />
+        <di:waypoint x="1610" y="1020" />
+        <di:waypoint x="1610" y="800" />
+        <di:waypoint x="1980" y="800" />
+        <di:waypoint x="1980" y="768" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

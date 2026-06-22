@@ -1,0 +1,103 @@
+@startuml
+
+skinparam backgroundColor #FAFAFA
+skinparam sequenceActorBackgroundColor #D6E4F0
+skinparam sequenceActorBorderColor #2C3E7A
+skinparam sequenceActorFontColor #1A1A2E
+skinparam sequenceActorFontStyle bold
+skinparam sequenceParticipantBackgroundColor #EEF4FF
+skinparam sequenceParticipantBorderColor #4A6FA5
+skinparam sequenceParticipantFontColor #1A1A2E
+skinparam sequenceArrowColor #2C3E7A
+skinparam sequenceArrowFontColor #2C3E7A
+skinparam sequenceNoteBorderColor #E6B800
+skinparam sequenceNoteBackgroundColor #FFFBEA
+skinparam sequenceNoteFontColor #5C4A00
+skinparam sequenceLifeLineBorderColor #4A6FA5
+skinparam sequenceDividerBackgroundColor #E8EDFF
+skinparam sequenceGroupBackgroundColor #F5F5FF
+skinparam sequenceGroupBorderColor #8080C0
+
+title Diagrama de Sequencia - Analise de Risco Passo a Passo\nSistema de Gestao de Licitacoes FACAPE - Grupo 05
+
+actor ":ChefeLicitacoes" as CL
+actor ":ChefeCompras" as CC
+
+boundary ":TelaMapaRiscos" as UI
+control ":MapaRiscosControl" as CTRL
+entity ":Risco" as RISCO
+entity ":MapaDeRiscos" as MAPA
+
+== Passo 1: Identificar Risco ==
+
+CL -> UI : informarRisco(descricao, causa, categoria)
+UI -> CTRL : cadastrarRisco(dadosRisco)
+CTRL -> RISCO : <<create>> new Risco(dadosRisco)
+RISCO --> CTRL : risco criado
+CTRL --> UI : risco registrado
+UI --> CL : confirmacao
+
+== Passo 2: Avaliar Probabilidade e Impacto ==
+
+CL -> UI : informarClassificacao(probabilidade, impacto)
+UI -> CTRL : classificarRisco(riscoId, probabilidade, impacto)
+CTRL -> RISCO : calcularScore(probabilidade, impacto)
+
+note right of RISCO
+  score = probabilidade x impacto
+  1-4: BAIXO  |  5-9: MEDIO
+  10-14: ALTO  |  15-25: CRITICO
+end note
+
+RISCO --> CTRL : score e nivel calculados
+CTRL --> UI : exibirNivel(score, nivel)
+UI --> CL : nivel exibido
+
+== Passo 3: Definir Mitigacao ==
+
+CL -> UI : informarMitigacao(tipo, descricao, prazo)
+UI -> CTRL : adicionarMitigacao(riscoId, dadosMitigacao)
+CTRL -> RISCO : vincularMitigacao(mitigacao)
+
+note right of RISCO
+  RN-MR-04: todo risco deve ter
+  ao menos uma mitigacao
+  antes da geracao do mapa
+end note
+
+RISCO --> CTRL : mitigacao vinculada
+CTRL --> UI : mitigacao salva
+UI --> CL : confirmacao
+
+== Passo 4: Gerar Mapa de Riscos ==
+
+CL -> UI : solicitarGeracaoMapa()
+UI -> CTRL : gerarMapa(processoId)
+CTRL -> MAPA : validarCompletude()
+
+alt Existe risco sem mitigacao
+  MAPA --> CTRL : pendencias encontradas
+  CTRL --> UI : exibirPendencias(lista)
+  UI --> CL : "Corrija os riscos antes de gerar o mapa"
+else Todos os riscos completos
+  MAPA --> CTRL : ok
+  CTRL -> MAPA : consolidar()
+  MAPA --> CTRL : mapa gerado
+
+  opt score >= 15 em algum risco
+    CTRL -> CTRL : alertarRiscoCritico()
+    note right of CTRL
+      RN-MR-03: riscos criticos
+      exigem validacao do
+      Juridico antes da aprovacao
+    end note
+  end
+
+  CTRL --> UI : mapaGerado()
+  UI --> CC : notificarMapaAguardandoAprovacao()
+  UI --> CL : "Mapa gerado e enviado para aprovacao"
+end
+
+== Pos-condicao: Mapa disponivel para aprovacao pelo Chefe de Compras ==
+
+@enduml
