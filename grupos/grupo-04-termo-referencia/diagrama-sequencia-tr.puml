@@ -1,0 +1,75 @@
+@startuml DIAGRAMA-SEQUENCIA-TR
+title Diagrama de Sequência - Compilação, Cálculo de Cotas e Validação do TR
+
+actor "Analista de Licitações" as Analista
+participant "Interface TR (G04)" as Tela
+participant "GerenciadorTR" as Sistema
+participant "RegrasMEEPP" as MotorRegras
+database "Banco de Dados G04" as DB
+participant "Módulo G02 (ETP)" as G02
+participant "Módulo G03 (Ata)" as G03
+participant "Módulo G09 (Auditoria)" as G09
+
+== UC01: Compilação de Dados de Origem ==
+Analista -> Tela: Selecionar ETP Aprovado e Iniciar TR
+Tela -> Sistema: iniciarNovoTR(idETP)
+activate Sistema
+
+Sistema -> G02: buscarDadosETP(idETP)
+G02 --> Sistema: objeto, justificativa, itens, quantidades
+Sistema -> G03: buscarDadosAtaSRP(idETP)
+G03 --> Sistema: orgaoGerenciador, numAta, homologacao
+
+Sistema -> Sistema: compilarDadosOrigem()
+Sistema -> DB: salvarRascunhoTR(Status: RASCUNHO)
+DB --> Sistema: rascunhoSalvo
+Sistema --> Tela: exibirRascunhoNaTela()
+deactivate Sistema
+
+== UC02 e UC03: Processamento Automatizado de Cotas (Lei 14.133/2021 — ME/EPP) ==
+Analista -> Tela: Solicitar Cálculo de Cotas
+Tela -> Sistema: calcularCotasTR(idTR)
+activate Sistema
+
+Sistema -> MotorRegras: buscarDiretrizesVigentes()
+MotorRegras --> Sistema: teto (R$ 80k), percentualReserva (25%)
+
+loop Para cada Item do Lote
+    Sistema -> Sistema: calcularValorTotalLote()
+    alt Valor Total <= R$ 80.000,00 (Cota Exclusiva 100%)
+        Sistema -> MotorRegras: aplicarCotaExclusiva(qtdTotal)
+        Sistema -> DB: instanciar CotaExclusiva(100% qtd)
+    else Valor Total > R$ 80.000,00 (Divisão Proporcional)
+        Sistema -> MotorRegras: calcular25Percent(qtdTotal)
+        MotorRegras -> MotorRegras: executarArredondamentoCeil()
+        MotorRegras --> Sistema: qtdCotaExclusiva
+        Sistema -> DB: instanciar CotaExclusiva(qtdArredondada)
+        Sistema -> DB: instanciar CotaAberta(quantidadeRestante)
+    end
+end
+
+Sistema -> DB: atualizarItensComCotas()
+Sistema --> Tela: exibirCotasCalculadas()
+deactivate Sistema
+
+== UC04: Validação, Injeção de Critérios e Geração Final ==
+Analista -> Tela: Inserir Local, Prazo, Critérios e Clicar em Finalizar
+Tela -> Sistema: finalizarTR(local, prazo, criterios)
+activate Sistema
+
+Sistema -> Sistema: validarConformidadeLegal()
+
+alt Validação Com Sucesso
+    Sistema -> DB: alterarStatus(Status: FORMATADO_E_VALIDADO)
+    
+    == Rastreabilidade e Auditoria (Integração G09) ==
+    Sistema -> G09: registrarEventoAuditoria(idTR, idUsuario, dataHora, versaoLeiAplicada)
+    G09 --> Sistema: ackLogRegistrado
+    
+    Sistema --> Tela: exibirSucesso("TR Finalizado e enviado para G05/G06")
+else Falha na Validação / Campos Obrigatórios Ausentes
+    Sistema --> Tela: exibirErro("Prazos ou critérios não preenchidos.")
+end
+deactivate Sistema
+
+@enduml

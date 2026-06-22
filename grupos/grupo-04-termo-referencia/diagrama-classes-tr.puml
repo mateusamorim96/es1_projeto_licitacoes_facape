@@ -1,0 +1,84 @@
+@startuml DIAGRAMA-CLASSES-TR
+title Diagrama de Classes - Módulo G04 (Termo de Referência)
+
+class TermoReferencia {
+    - idTR: String
+    - idETP: String
+    - idAtaSRP: String
+    - objetoContratacao: String
+    - justificativa: String
+    - localEntrega: String
+    - prazoEntrega: int
+    - status: StatusTR
+    - versaoLeiAplicada: String
+    - dataCriacao: DateTime
+    - idUsuarioCriador: String
+    + compilarDadosOrigem(dadosETP, dadosAta)
+    + validarConformidadeLegal(): boolean
+    + finalizarTR()
+}
+
+enum StatusTR {
+    RASCUNHO
+    EM_VALIDACAO
+    FORMATADO_E_VALIDADO
+    REJEITADO
+}
+
+class ItemLote {
+    - idItem: String
+    - descricao: String
+    - quantidadeTotal: int
+    - valorUnitarioEstimado: Double
+    - valorTotalLote: Double
+    + calcularValorTotalLote(): Double
+    + processarDivisaoCotas(regras: RegrasMEEPP)
+}
+
+class CotaExclusiva {
+    - idCotaExclusiva: String
+    - quantidadeAlocada: int
+    - percentualAplicado: Double
+    - justificativaUso: String
+    + aplicarRegraExclusividade(qtd: int)
+}
+
+class CotaAberta {
+    - idCotaAberta: String
+    - quantidadeAlocada: int
+    - percentualAplicado: Double
+}
+
+class RegrasMEEPP {
+    - idRegra: String
+    - tetoCotaExclusiva: Double
+    - percentualReservaCota: Double
+    - margemEmpateFicto: Double
+    - ativa: boolean
+    + determinarTipoCota(valorTotalLote: Double): String
+    + executarArredondamentoCeil(quantidade: Double): int
+}
+
+class Criterio {
+    - idCriterio: String
+    - tipoCriterio: String
+    - descricaoDetalhada: String
+    - obrigatorio: boolean
+}
+
+' Relacionamentos e Associações
+TermoReferencia "1" *-- "1..*" ItemLote : possui >
+TermoReferencia "1" *-- "1..*" Criterio : define >
+TermoReferencia "1" --> "1" RegrasMEEPP : consulta >
+
+ItemLote "1" o-- "0..1" CotaExclusiva : aloca >
+ItemLote "1" o-- "0..1" CotaAberta : aloca >
+
+note right of RegrasMEEPP
+  **ADR-01 & ADR-02:**
+  - Valores parametrizados em banco (sem hardcode).
+  - Divisões com frações aplicam 'Ceil' 
+    em favor da CotaExclusiva.
+end note
+
+@enduml
