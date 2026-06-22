@@ -43,9 +43,14 @@ Acompanhamento do pregão eletrônico na plataforma da Prefeitura (sem implement
 
 > Preencha esta seção ao finalizar:
 
-- **Integrantes:**
-- **Data de entrega:**
-- **Branch/PR:**
+- **Integrantes:** 
+   - Álvaro de Oliveira Campos Filho
+   - Maria Clara Barros Benevides
+   - Jorge Luis de Carvalho Alves
+   - Iasmyn Roberta Morais da Silva
+   - Ana Beatriz Medeiros Ramos 
+- **Data de entrega:** 12/06/2026
+- **Branch/PR:** grupo07/readme
 
 ---
 
@@ -181,10 +186,18 @@ grupo-07-adrs/
 ## ✏️ Seção de Entrega (preencher pelo grupo)
 
 **Integrantes:**
-- ...
+- Álvaro de Oliveira Campos Filho
+- Maria Clara Barros Benevides
+- Jorge Luis de Carvalho Alves
+- Iasmyn Roberta Morais da Silva
+- Ana Beatriz Medeiros Ramos
 
 **Decisões tomadas:**
-> ...
+> Monolito modular (ADR-001), polling periódico via API REST do PNCP (ADR-002),
+> JWT com RBAC (ADR-003), arquivo local + hash SHA-256 (ADR-004),
+> e-mail SMTP + notificações in-app (ADR-005).
 
 **Limitações identificadas:**
-> ...
+> Polling introduz atraso na detecção de mudanças; armazenamento local requer
+> backup externo; integração com o 1doc ficou fora do escopo; intervalo de
+> polling precisa ser calibrado para evitar rate limiting do PNCP.
