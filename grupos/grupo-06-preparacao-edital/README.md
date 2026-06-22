@@ -45,9 +45,9 @@ Formatação do TR e Mapa de Risco em documento oficial (edital) e envio para a 
 
 > Preencha esta seção ao finalizar:
 
-- **Integrantes:**
-- **Data de entrega:**
-- **Branch/PR:**
+- **Integrantes: Enzo Gabriel Lima Nunes, João Victor da Silva Costa Vasconcelos, Victor Emmanuel Silva Ramos, Juliardo Mateus Brito de Sa Junior, Gustavo de Souza Mendonça**
+- **Data de entrega: 12/06/2026**
+- **Branch/PR: Preparação edital **
 
 ---
 
@@ -144,11 +144,11 @@ Estimativa: M | Prioridade: Alta | Épico: EP-01
 
 ## 📋 Checklist de Qualidade
 
-- [ ] Toda US tem ator, ação e valor claramente expressos
-- [ ] Critérios de aceite cobrem o caminho feliz e pelo menos um fluxo alternativo
-- [ ] Regras de negócio (RN-XX) estão referenciadas nas USs relevantes
-- [ ] Backlog priorizado distingue MVP de funcionalidades futuras
-- [ ] Estimativas de complexidade são relativas entre si (não absolutas)
+- [x] Toda US tem ator, ação e valor claramente expressos
+- [x] Critérios de aceite cobrem o caminho feliz e pelo menos um fluxo alternativo
+- [x] Regras de negócio (RN-XX) estão referenciadas nas USs relevantes
+- [x] Backlog priorizado distingue MVP de funcionalidades futuras
+- [x] Estimativas de complexidade são relativas entre si (não absolutas)
 
 ---
 
@@ -167,10 +167,16 @@ grupo-06-backlog/
 ## ✏️ Seção de Entrega (preencher pelo grupo)
 
 **Integrantes:**
-- ...
+- Enzo Gabriel Lima Nunes, Victor Emmanuel Silva Ramos, João Victor da Silva Costa Vasconcelos, Gustavo de Souza Mendonça, Juliardo Mateus Brito de Sá Junior.
 
 **Decisões tomadas:**
-> ...
+ADR-01: Modelamos o fluxo em duas pools — "Módulo G06" (tramitação interna) e "Prefeitura" (tramitação externa) — para separar claramente o que está sob controle do sistema do que depende de um agente externo.
+
+ADR-02: A validação de completude do edital foi modelada como gateway de decisão exclusivo: se houver pendências (TR, Mapa de Risco ou campos obrigatórios faltando), o fluxo retorna automaticamente para a etapa de correção, impedindo o envio de um edital incompleto.
+
+ADR-03: O envio do edital para a Prefeitura foi representado como fluxo de mensagem entre as duas pools (e não como continuação direta do processo), por se tratar de uma comunicação entre sistemas/organizações distintos. Caso a Prefeitura devolva o edital, esse retorno reutiliza o mesmo ciclo de correção interno.
+
+ADR-04: Incluímos uma tarefa dedicada de registro de data/hora/status logo após o envio, para atender ao requisito de auditoria. O fim da tramitação interna do G06 foi definido nesse ponto — o acompanhamento posterior é responsabilidade do G07.
 
 **Limitações identificadas:**
-> ...
+A principal dificuldade foi delimitar até onde vai a responsabilidade do G06 e onde começa a do G07, já que o processo de envio/resposta da Prefeitura é, por natureza, externo ao nosso sistema. Também não foi simples decidir o nível de detalhe da pool "Prefeitura" — optamos por simplificá-la, sem representar suas etapas internas (protocolo, jurídico, etc.). O diagrama ainda não cobre aspectos como prazos/SLA, falhas técnicas no envio, versionamento do edital em caso de reenvio e limite de repetições do loop de correção, pontos que podem precisar ser revisitados em versões futuras do BPMN.

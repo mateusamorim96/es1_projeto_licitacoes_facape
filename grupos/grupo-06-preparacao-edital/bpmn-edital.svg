@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1650 850" font-family="Segoe UI, Arial, sans-serif">
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#555"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="1650" height="850" fill="#ffffff"/>
+
+  <!-- ===================== POOLS ===================== -->
+  <!-- Pool G06 -->
+  <rect x="40" y="60" width="1570" height="400" fill="#f5f9ff" stroke="#3b6fb6" stroke-width="2" rx="4"/>
+  <rect x="40" y="60" width="34" height="400" fill="#3b6fb6"/>
+  <text x="57" y="260" fill="#ffffff" font-size="15" font-weight="bold" text-anchor="middle" transform="rotate(-90 57,260)">Módulo G06 - Sistema (Tramitação Interna)</text>
+
+  <!-- Pool Prefeitura -->
+  <rect x="40" y="480" width="1570" height="340" fill="#fff7ed" stroke="#c2783c" stroke-width="2" rx="4"/>
+  <rect x="40" y="480" width="34" height="340" fill="#c2783c"/>
+  <text x="57" y="650" fill="#ffffff" font-size="15" font-weight="bold" text-anchor="middle" transform="rotate(-90 57,650)">Prefeitura (Tramitação Externa)</text>
+
+  <!-- ===================== G06 - SEQUENCE FLOWS ===================== -->
+  <g stroke="#555" stroke-width="2" fill="none" marker-end="url(#arrow)">
+    <line x1="132" y1="180" x2="208" y2="180"/>
+    <line x1="370" y1="180" x2="418" y2="180"/>
+    <line x1="580" y1="180" x2="628" y2="180"/>
+    <line x1="790" y1="180" x2="863" y2="180"/>
+    <line x1="937" y1="180" x2="1018" y2="180"/>
+    <polyline points="900,215 900,340 642,340"/>
+    <polyline points="560,295 560,250 500,250 500,233"/>
+    <line x1="1180" y1="180" x2="1228" y2="180"/>
+    <line x1="1390" y1="180" x2="1496" y2="180"/>
+  </g>
+
+  <!-- labels for G06 conditional flows -->
+  <text x="975" y="172" font-size="12" fill="#1a1a1a">Completo</text>
+  <text x="920" y="285" font-size="12" fill="#1a1a1a">Pendências</text>
+  <text x="920" y="300" font-size="12" fill="#1a1a1a">encontradas</text>
+
+  <!-- ===================== PREFEITURA - SEQUENCE FLOWS ===================== -->
+  <g stroke="#555" stroke-width="2" fill="none" marker-end="url(#arrow)">
+    <line x1="1180" y1="600" x2="1273" y2="600"/>
+    <line x1="1347" y1="600" x2="1438" y2="600"/>
+    <line x1="1310" y1="635" x2="1310" y2="688"/>
+    <line x1="1600" y1="600" x2="1592" y2="600"/>
+  </g>
+
+  <text x="1390" y="592" font-size="12" fill="#1a1a1a">Sim</text>
+  <text x="1320" y="665" font-size="12" fill="#1a1a1a">Não</text>
+
+  <!-- ===================== MESSAGE FLOWS (dashed, cross-pool) ===================== -->
+  <g stroke="#888" stroke-width="2" fill="none" stroke-dasharray="6,4" marker-end="url(#arrow)">
+    <line x1="1100" y1="225" x2="1100" y2="553"/>
+    <polyline points="1230,735 680,735 680,385 642,385"/>
+  </g>
+  <text x="1108" y="400" font-size="12" fill="#555" font-style="italic">Edital + Anexos</text>
+  <text x="700" y="715" font-size="12" fill="#555" font-style="italic">Edital devolvido</text>
+
+  <!-- ===================== G06 SHAPES ===================== -->
+
+  <!-- Start Event -->
+  <circle cx="110" cy="180" r="22" fill="#ffffff" stroke="#3b6fb6" stroke-width="2.5"/>
+  <text x="110" y="220" font-size="12" text-anchor="middle" fill="#1a1a1a">Início</text>
+
+  <!-- Receber TR e Mapa de Risco -->
+  <rect x="210" y="135" width="160" height="90" rx="10" fill="#dbeafe" stroke="#3b6fb6" stroke-width="1.5"/>
+  <text x="290" y="172" font-size="12.5" text-anchor="middle" fill="#1a1a1a">Receber TR (G04) e</text>
+  <text x="290" y="190" font-size="12.5" text-anchor="middle" fill="#1a1a1a">Mapa de Risco (G05)</text>
+
+  <!-- Formatar Edital -->
+  <rect x="420" y="135" width="160" height="90" rx="10" fill="#dbeafe" stroke="#3b6fb6" stroke-width="1.5"/>
+  <text x="500" y="172" font-size="12.5" text-anchor="middle" fill="#1a1a1a">Formatar Edital no</text>
+  <text x="500" y="190" font-size="12.5" text-anchor="middle" fill="#1a1a1a">padrão oficial</text>
+
+  <!-- Anexar TR e Mapa de Risco -->
+  <rect x="630" y="135" width="160" height="90" rx="10" fill="#dbeafe" stroke="#3b6fb6" stroke-width="1.5"/>
+  <text x="710" y="172" font-size="12.5" text-anchor="middle" fill="#1a1a1a">Anexar TR e Mapa de</text>
+  <text x="710" y="190" font-size="12.5" text-anchor="middle" fill="#1a1a1a">Risco ao Edital</text>
+
+  <!-- Gateway Validar -->
+  <polygon points="900,145 945,180 900,215 855,180" fill="#fef3c7" stroke="#b58a1f" stroke-width="1.5"/>
+  <text x="900" y="178" font-size="12" text-anchor="middle" fill="#1a1a1a">Edital</text>
+  <text x="900" y="194" font-size="12" text-anchor="middle" fill="#1a1a1a">completo?</text>
+
+  <!-- Enviar Edital -->
+  <rect x="1020" y="135" width="160" height="90" rx="10" fill="#dbeafe" stroke="#3b6fb6" stroke-width="1.5"/>
+  <text x="1100" y="172" font-size="12.5" text-anchor="middle" fill="#1a1a1a">Enviar Edital para</text>
+  <text x="1100" y="190" font-size="12.5" text-anchor="middle" fill="#1a1a1a">a Prefeitura</text>
+
+  <!-- Registrar -->
+  <rect x="1230" y="135" width="160" height="90" rx="10" fill="#dbeafe" stroke="#3b6fb6" stroke-width="1.5"/>
+  <text x="1310" y="172" font-size="12.5" text-anchor="middle" fill="#1a1a1a">Registrar data/hora</text>
+  <text x="1310" y="190" font-size="12.5" text-anchor="middle" fill="#1a1a1a">e status de envio</text>
+
+  <!-- End Event -->
+  <circle cx="1520" cy="180" r="22" fill="#ffffff" stroke="#3b6fb6" stroke-width="3"/>
+  <text x="1520" y="220" font-size="12" text-anchor="middle" fill="#1a1a1a">Fim (tramitação</text>
+  <text x="1520" y="234" font-size="12" text-anchor="middle" fill="#1a1a1a">interna)</text>
+
+  <!-- Corrigir pendências -->
+  <rect x="480" y="295" width="160" height="90" rx="10" fill="#fde2e2" stroke="#c0392b" stroke-width="1.5"/>
+  <text x="560" y="332" font-size="12.5" text-anchor="middle" fill="#1a1a1a">Corrigir pendências</text>
+  <text x="560" y="350" font-size="12.5" text-anchor="middle" fill="#1a1a1a">apontadas</text>
+
+  <!-- ===================== PREFEITURA SHAPES ===================== -->
+
+  <!-- Receber Edital -->
+  <rect x="1020" y="555" width="160" height="90" rx="10" fill="#fde9d2" stroke="#c2783c" stroke-width="1.5"/>
+  <text x="1100" y="606" font-size="12.5" text-anchor="middle" fill="#1a1a1a">Receber Edital</text>
+
+  <!-- Gateway Completo -->
+  <polygon points="1310,565 1355,600 1310,635 1265,600" fill="#fef3c7" stroke="#b58a1f" stroke-width="1.5"/>
+  <text x="1310" y="592" font-size="11.5" text-anchor="middle" fill="#1a1a1a">Edital completo</text>
+  <text x="1310" y="608" font-size="11.5" text-anchor="middle" fill="#1a1a1a">e correto?</text>
+
+  <!-- Conduzir Pregão -->
+  <rect x="1440" y="555" width="160" height="90" rx="10" fill="#fde9d2" stroke="#c2783c" stroke-width="1.5"/>
+  <text x="1520" y="592" font-size="12.5" text-anchor="middle" fill="#1a1a1a">Conduzir Pregão</text>
+  <text x="1520" y="610" font-size="12.5" text-anchor="middle" fill="#1a1a1a">Eletrônico</text>
+
+  <!-- End Pregão -->
+  <circle cx="1610" cy="600" r="18" fill="#ffffff" stroke="#c2783c" stroke-width="3"/>
+  <text x="1610" y="640" font-size="12" text-anchor="middle" fill="#1a1a1a">Pregão em</text>
+  <text x="1610" y="654" font-size="12" text-anchor="middle" fill="#1a1a1a">andamento</text>
+
+  <!-- Devolver Edital -->
+  <rect x="1230" y="690" width="160" height="90" rx="10" fill="#fde2e2" stroke="#c0392b" stroke-width="1.5"/>
+  <text x="1310" y="727" font-size="12.5" text-anchor="middle" fill="#1a1a1a">Devolver Edital</text>
+  <text x="1310" y="745" font-size="12.5" text-anchor="middle" fill="#1a1a1a">para correção</text>
+
+  <!-- ===================== LEGEND ===================== -->
+  <g font-size="12" fill="#1a1a1a">
+    <rect x="60" y="780" width="18" height="18" rx="4" fill="#dbeafe" stroke="#3b6fb6"/>
+    <text x="86" y="794">Tarefa (fluxo normal)</text>
+
+    <rect x="240" y="780" width="18" height="18" rx="4" fill="#fde2e2" stroke="#c0392b"/>
+    <text x="266" y="794">Tarefa de correção/retrabalho</text>
+
+    <polygon points="470,780 488,789 470,798 452,789" fill="#fef3c7" stroke="#b58a1f"/>
+    <text x="500" y="794">Gateway de decisão</text>
+
+    <circle cx="660" cy="789" r="9" fill="#ffffff" stroke="#3b6fb6" stroke-width="2"/>
+    <text x="678" y="794">Evento (início/fim)</text>
+
+    <line x1="800" y1="789" x2="840" y2="789" stroke="#555" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="850" y="794">Fluxo de sequência</text>
+
+    <line x1="1010" y1="789" x2="1050" y2="789" stroke="#888" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrow)"/>
+    <text x="1060" y="794">Fluxo de mensagem (entre pools)</text>
+  </g>
+
+</svg>
