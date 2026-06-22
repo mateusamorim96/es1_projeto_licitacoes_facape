@@ -44,10 +44,15 @@ Este grupo pode opcionalmente incluir um arquivo `contexto-agente.md` apenas par
 
 ---
 
+## Decisões Arquiteturais (ADRs)
+
+- **ADR-001: Banco de dados para logs imutáveis** – Utilizamos PostgreSQL com tabela `evento_auditoria` configurada como append-only (revoke update/delete), particionamento mensal e índices em `(modulo_origem, timestamp)`. Alternativas como Amazon QLDB e blockchain foram rejeitadas por custo e complexidade.
+- **ADR-002: Event Sourcing vs. log simples** – Optamos por um log append-only simples sem Event Sourcing completo, pois não há necessidade de reconstruir estado de agregados; cada módulo mantém seu próprio estado atual. Isso reduz complexidade e mantém os requisitos de auditoria.
+
 ## Entrega do Grupo
 
 > Preencha esta seção ao finalizar:
 
-- **Integrantes:**
-- **Data de entrega:**
-- **Branch/PR:**
+- **Integrantes:** Kelvin Fernandes, Luis Felipe, Matheus Henrique, Gustavo Fraga, João Pedro Carvalho
+- **Data de entrega:** 03/06/2026
+- **Branch/PR:** feature/grupo-09-auditoria-compliance-bi
