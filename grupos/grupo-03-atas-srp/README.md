@@ -1,174 +1,72 @@
-# Grupo 03 — Pesquisa e Gestão de Atas SRP
-
-## Módulo do Sistema
-
-Verificação de atas de SRP (Sistema de Registro de Preço) vigentes que podem ser reutilizadas (adesão/carona) em vez de abrir novo processo licitatório.
-
-## Responsabilidade
-
-- Receber ETP (G02)
-- Pesquisar atas de SRP vigentes que cobrem os itens solicitados
-- Comparar competitividade: preço da ata vs. cotação nova
-- Calcular viabilidade de adesão (limite de 50% do quantitativo da ata)
-- Gerar recomendação: adesão a ata existente ou novo processo
-
-**Entradas:** ETP (G02)  
-**Saídas:** Relatório de atas com recomendação de ação
+# G3 — Gestão de Atas SRP
+## Projeto AV2 — Engenharia de Software I — FACAPE 2026
 
 ---
 
-## Entregas Mínimas
+## Descrição do Módulo
 
-| Artefato | Descrição |
-|----------|-----------|
-| Casos de uso (mínimo 4) | Pesquisar ata, validar competitividade, calcular limite de adesão, gerar relatório |
-| Diagrama UML de classes | `Ata`, `ProcessoLicitatorio`, `Adesao`, `Fornecedor`, `AnalisePrecoConcorrencia` |
-| Diagrama de sequência | Busca em base de atas, validação de elegibilidade |
-| BPMN | Fluxo: pesquisa → validação → decisão (adesão vs. novo processo) |
-| Backlog | Mínimo 5 histórias de usuário |
-| ADRs (mínimo 2) | Ex.: onde armazenar dados de atas? Local vs. Portal da Prefeitura? |
-| Testes | Cálculo correto de 50%, validação de vigência |
-| Auditoria | Quais atas foram consultadas, qual foi a decisão final |
+O módulo **G3 — Gestão de Atas SRP** é responsável por pesquisar Atas de Registro de Preço (ARP) vigentes que atendam à demanda descrita no ETP (recebido do G2) e calcular os limites de uso de cada ata, enviando o resultado ao módulo G4 (Termo de Referência).
+
+- **Entrada:** ETP produzido pelo Grupo 2
+- **Saída:** Informações de atas vigentes/compatíveis enviadas ao Grupo 4
 
 ---
 
-## Interfaces com Outros Módulos
+## Estrutura do Repositório
 
-- **Entrada ← G02 (ETP):** ETP
-- **Saída → G04 (TR):** Decisão de ata (adesão ou novo processo)
-
----
-
-## Entrega do Grupo
-
-> Preencha esta seção ao finalizar:
-
-- **Integrantes:**
-- **Data de entrega:**
-- **Branch/PR:**
-
----
-
-## 📋 O que entregar
-
-### Artefato 1: `diagrama-classes-dominio.png` + fonte (`.puml` ou `.drawio`)
-Diagrama UML de Classes com:
-- Mínimo de 12 classes de domínio
-- Atributos com tipos de dados
-- Relacionamentos completos (associação, composição, agregação, herança)
-- Multiplicidades corretas
-- Sem classes de infraestrutura (sem `Repository`, `Service`, `Controller`)
-
-### Artefato 2: `dicionario-de-dados.md`
-Para cada classe, descreva:
-- Responsabilidade da classe
-- Atributos (nome, tipo, restrição, exemplo)
-- Invariantes relevantes
-
----
-
-## 🗂️ Classes-Chave para Modelar
-
-Baseadas no contexto do sistema:
-
-| Classe | Descrição |
-|--------|-----------|
-| `PCA` | Plano de Contratação Anual |
-| `Demanda` | Necessidade registrada por uma secretaria |
-| `DFD` | Documento de Formalização da Demanda |
-| `ItemDemanda` | Item específico dentro de uma demanda |
-| `ETP` | Estudo Técnico Preliminar |
-| `MapaDeRisco` | Riscos identificados para a contratação |
-| `Cotacao` | Pesquisa de preços com fornecedores |
-| `ItemCotacao` | Preço de um item junto a um fornecedor |
-| `TermoDeReferencia` | Especificação técnica completa |
-| `ProcessoLicitatorio` | Registro do processo enviado à Prefeitura |
-| `AtaRegistroPrecos` | Ata SRP vigente com itens e preços |
-| `OrdemFornecimento` | Pedido emitido à empresa vencedora |
-| `Secretaria` | Unidade demandante (colegiado, setor) |
-| `Fornecedor` | Empresa participante |
-
-> ⚠️ Cuidado com as **regras de negócio** ao definir multiplicidades:
-> - Uma `DFD` pode ter N `Demandas` de N `Secretarias`
-> - Uma `AtaRegistroPrecos` pode gerar 0..N `OrdemFornecimento`
-> - Um `ProcessoLicitatorio` tem exatamente 1 `TermoDeReferencia`
-
----
-
-## 🛠️ Ferramentas Recomendadas
-
-| Ferramenta | Link | Observação |
-|-----------|------|------------|
-| **PlantUML** | [plantuml.com](https://plantuml.com) | Preferencial — código versionável |
-| **draw.io** | [app.diagrams.net](https://app.diagrams.net) | Boa UX, exporta XML |
-| **StarUML** | [staruml.io](https://staruml.io) | Desktop, rico em recursos UML |
-| **Mermaid** | [mermaid.live](https://mermaid.live) | Integra bem com GitHub MD |
-
-### Exemplo PlantUML — Classe básica:
-
-```plantuml
-@startuml diagrama-classes-dominio
-skinparam classAttributeIconSize 0
-
-class DFD {
-  - id: UUID
-  - dataAbertura: Date
-  - status: StatusDFD
-  - valorEstimadoTotal: Decimal
-  --
-  + consolidarDemandas(): void
-  + gerarResumo(): String
-}
-
-enum StatusDFD {
-  ABERTO
-  CONSOLIDADO
-  ENVIADO
-  ENCERRADO
-}
-
-class Demanda {
-  - id: UUID
-  - descricao: String
-  - justificativa: String
-  - dataRegistro: Date
-}
-
-class ItemDemanda {
-  - id: UUID
-  - catmat: String
-  - descricao: String
-  - quantidadeSolicitada: Integer
-  - unidadeMedida: String
-}
-
-DFD "1" *-- "1..*" Demanda : contém
-Demanda "1" *-- "1..*" ItemDemanda : possui
-DFD --> StatusDFD
-@enduml
+```
+G3-Gestao-Atas-SRP/
+├── README.md                        ← Este arquivo
+├── docs/
+│   ├── Grupo3_Gestao_Atas_SRP.md   ← Documento completo do módulo
+│   ├── casos-de-uso/
+│   │   └── casos-de-uso.md          ← UC01 a UC06 detalhados
+│   ├── diagramas/
+│   │   ├── modelo-dominio.md        ← Diagrama UML de entidades
+│   │   ├── sequencia.md             ← Diagrama de sequência
+│   │   └── bpmn.md                  ← Fluxo BPMN
+│   ├── adr/
+│   │   └── adr.md                   ← ADR-01, ADR-02, ADR-03
+│   └── contratos/
+│       └── contrato-dados.md        ← Contrato de entrada/saída (RQ-INT-01)
+├── backlog/
+│   └── historias-usuario.md         ← US01 a US06 com critérios de aceite
+├── testes/
+│   └── plano-testes.md              ← Testes unitários e de integração
+├── audit/
+│   └── logs-auditoria.md            ← Eventos de log (RQ-INT-05) e rastreabilidade
+└── src/
+    ├── domain/
+    │   └── models.md                ← Descrição das entidades do domínio
+    ├── services/
+    │   └── services.md              ← Lógica de negócio dos serviços
+    └── controllers/
+        └── controllers.md           ← Endpoints e controllers
 ```
 
 ---
 
-## 📁 Estrutura esperada da pasta
+## Requisitos Mínimos Atendidos
 
-```
-grupo-03-diagrama-classes/
-├── README.md
-├── diagrama-classes-dominio.puml    ← fonte PlantUML (ou .drawio)
-├── diagrama-classes-dominio.png     ← exportação
-└── dicionario-de-dados.md           ← descrição detalhada das classes
-```
+| Requisito | Descrição | Status |
+|---|---|---|
+| RQ-INT-01 | Contrato de entrada/saída documentado | ✅ `docs/contratos/` |
+| RQ-INT-02 | Rastreabilidade ponta a ponta | ✅ `audit/` |
+| RQ-INT-03 | Fundamento normativo registrado (RN-04, RN-08, RN-10) | ✅ `docs/casos-de-uso/` |
+| RQ-INT-04 | Plano de testes + integração com G2 e G4 | ✅ `testes/` |
+| RQ-INT-05 | Logs estruturados de transições de estado | ✅ `audit/` |
 
 ---
 
-## ✏️ Seção de Entrega (preencher pelo grupo)
+## Integrações
 
-**Integrantes:**
-- ...
+| Módulo | Tipo | Descrição |
+|---|---|---|
+| **G2 — ETP** | Entrada | Fornece o ETP com item/categoria/unidade/quantidade |
+| **G4 — Termo de Referência** | Saída | Recebe ata selecionada para elaboração do TR |
+| **G8 — Ordem de Fornecimento** | Dependência | Mantém dados de empenhos usados no cálculo de saldo |
+| **G9 — Auditoria/BI** | Log | Consome eventos estruturados para trilha imutável |
 
-**Decisões tomadas:**
-> ...
+---
 
-**Limitações identificadas:**
-> ...
+*Grupo 3 — FACAPE 2026*
